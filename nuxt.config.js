@@ -38,11 +38,17 @@ module.exports = {
     // Doc: https://bootstrap-vue.js.org/docs/
     '@nuxtjs/axios',
     '@nuxtjs/auth',
+    '@nuxtjs/proxy',
     'bootstrap-vue/nuxt'
   ],
 
   axios: {
     // See https://github.com/nuxt-community/axios-module#options
+    proxy: true
+  },
+
+  proxy: {
+    '/api/': { target: 'https://hityang.noip.me/', pathRewrite: { '^/api/': '' } }
   },
 
   auth: {

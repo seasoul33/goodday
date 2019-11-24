@@ -1,0 +1,330 @@
+<template>
+    <div class="container">
+        <div class="container-calendar">
+            <v-date-picker
+                mode="single"
+                v-model="selectedSingleDate"
+                is-inline
+                is-expanded
+                is-required
+                :attributes="calendarAttr"
+                @input="updateJobs"
+            />
+        </div>
+
+        <div>
+            <span class="container-topic">
+                <autoSuggest
+                    ref="first"
+                    :sourceData="customerNamelist"
+                    v-model="customerName"
+                    holder="customer name..."
+                />
+            </span>
+
+            <span class="container-topic">
+                <autoSuggest
+                    ref="project"
+                    :sourceData="projectNameList"
+                    v-model="projectName"
+                    holder="project name..."
+                />
+            </span>
+
+            <span class="container-topic">
+                <autoSuggest
+                    ref="function"
+                    :sourceData="featureNameList"
+                    v-model="featureName"
+                    holder="function name..."
+                />
+            </span>
+
+            <span>
+                <input type="number" v-model="workHour">
+            </span>
+
+            <span class="container-topic">
+                <textarea rows="3" cols="80" placeholder="job description..."
+                    v-model="jobDescription">
+                </textarea>
+            </span>
+
+            <span>
+                <b-button
+                    class="new-button"
+                    size="sm"
+                    variant="primary"
+                    @click="addJobs">{{buttonString}}
+                </b-button>
+                <b-button
+                    class="new-button"
+                    size="sm"
+                    variant="primary"
+                    @click="clearJob">Clear
+                </b-button>
+            </span>
+        </div>
+
+        <div>
+            <b-table 
+                table-variant="primary"
+                head-variant="dark"
+                striped
+                hover
+                small
+                :items="displayedJobs"
+                @row-clicked="selectJob" 
+            />
+        </div>
+    </div>
+</template>
+
+<script>
+import Vue from 'vue';
+import autoSuggest from '~/components/autoSuggest.vue';
+import { setupCalendar, DatePicker} from 'v-calendar';
+import 'v-calendar/lib/v-calendar.min.css';
+import { BTable } from 'bootstrap-vue';
+import moment from 'moment';
+import lang from 'lodash/lang';
+
+const timeFormat='YYYY-MM-DD  HH:mm:ss';
+
+setupCalendar({
+  firstDayOfWeek: 2,  // Monday,
+});
+
+export default {
+    components: {
+        autoSuggest,
+        setupCalendar,
+        'v-date-picker': DatePicker,
+    },
+        
+    mounted: async function() {
+        this.setFocus("first");
+        this.updateJobs();
+    },
+
+    props: {
+        currentUser: Object,
+        customers: Array,
+        projects: Array,
+        features: Array,
+    },
+
+    watch: {
+        currentUser: {
+            deep: true,
+            handler(newVal, oldVal) {
+                this.updateJobs();
+            },
+        },
+    },
+
+    data: function() {
+        return {
+            buttonString: 'Add',
+            jobs: [],
+            customerName: '',
+            projectName: '',
+            featureName: '',
+            workHour: 0,
+            jobDescription: '',
+            jobId: '',
+            calendarAttr: [
+                {
+                    key: 'today',
+                    dot: {
+                        backgroundColor: 'red',
+                        diameter: "10px"
+                        // borderColor: 'blue',
+                        // borderWidth: "1"
+                    },
+                    dates: [new Date(),],
+                },
+                {
+                    key: 'holiday',
+                    bar: {
+                        backgroundColor: 'pink',
+                    },
+                    dates: [
+                        {weekdays: [1,7]},
+                    ],
+                },
+                {
+                    key: 'lack',
+                    highlight: {
+                        backgroundColor: 'silver',
+                    },
+                    dates: [
+                        new Date(2019, 9, 1),
+                        {
+                            start: new Date(2019, 9, 3),
+                            end: new Date(2019, 9, 4),
+                        },
+                        new Date(2019, 9, 14),
+                        new Date(2019, 9, 15),
+                    ],
+                },
+            ],
+            // selectedMultiDate: [new Date(new Date().getFullYear(), new Date().getMonth(),new Date().getDate())],
+            selectedSingleDate: new Date(new Date().getFullYear(), new Date().getMonth(),new Date().getDate()),
+        };
+    },
+
+    computed: {
+        loginAccount: function() {
+            this.updateJobs();
+            return this.currentUser.username;
+        },
+
+        customerNamelist: function(){
+            return this.customers.map(function(element){
+                return element.name;
+            });
+        },
+
+        projectNameList: function(){
+            let self = this;
+            return this.projects.reduce(function(result, project){
+                if(project.customer===self.customerName) {
+                    result.push(project.name);
+                    result = result.concat(project.otherNames);
+                }
+                return result;
+            }, []);
+        },
+
+        featureNameList: function(){
+            return this.features.map(function(element){
+                return element.name;
+            });
+        },
+
+        selectedDateString: function() {
+            return this.selectedSingleDate.toLocaleDateString();
+        },
+
+        displayedJobs: function() {
+            let newJobs = this.jobs.map(j => (lang.cloneDeep(j)));
+            return newJobs.map(function(element){
+                delete element._id;
+                delete element.__v;
+                delete element.owner;
+                return element;
+            });
+        },
+    },
+
+    methods: {
+        setFocus(refName) {
+            let refChildName = '';
+
+            // Access the first element in the $refs of the child component which is in current $refs.
+            refChildName = Object.keys(this.$refs[refName].$refs)[0];
+
+            this.$refs[refName].$refs[refChildName].focus();
+        },
+
+        clearJob (){
+            this.customerName = '';
+            this.projectName = '';
+            this.featureName = '';
+            this.workHour = 0;
+            this.jobDescription = '';
+            this.jobId = '';
+            this.buttonString = 'Add'
+        },
+
+        async updateJobs(){
+            let result = await this.getJobs();
+            // console.log('result: '+result);
+            this.jobs = result.slice();
+        },
+
+        async addJobs() {
+            await this.$axios.put('api/jobs',{
+                _id: this.jobId,
+                customer: this.customerName,
+                project: this.projectName,
+                feature: this.featureName,
+                effort: this.workHour,
+                content: this.jobDescription,
+                owner: this.currentUser.username,
+                date: this.selectedDateString,
+            });
+
+            this.jobId= '';
+            this.buttonString = 'Add';
+
+            this.updateJobs();
+        },
+
+        async getJobs() {
+            let result;
+            let queryDate = 'date=' + this.selectedDateString;
+            let queryUser = 'user=' + this.currentUser.username;
+            await this.$axios.get('api/jobs?' + queryDate + '&' + queryUser)
+                .then( res => {result = res.data.jobs.slice()});
+            return result;
+        },
+
+        selectJob(item, index) {
+            this.customerName = item.customer;
+            this.projectName = item.project;
+            this.featureName = item.feature;
+            this.workHour = item.effort;
+            this.jobDescription = item.content;
+            this.jobId = this.jobs[index]._id;
+            // console.log('id:'+this.jobId);
+
+            this.buttonString = 'Edit';
+        },
+    }
+}
+</script>
+
+<style>
+body {
+    /*font-family: sans-serif;*/
+    font-family: 'Microsoft JhengHei','Heiti TC','WenQuanYi Zen Hei', Helvetica;
+    background-color: #315481;
+    background-image: linear-gradient(to bottom, #315481, #918e82 100%);
+    background-attachment: fixed;
+   
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+   
+    padding: 0;
+    padding-top: 3%;
+    margin: 0;
+   
+    font-size: 14px;
+    word-break: break-all;
+}
+
+
+.container {
+    max-width: 800px;
+    /* margin: 0 auto; */
+    /* margin-bottom: 1em; */
+    /* padding-bottom: 1em; */
+    min-height: 100%;
+    background: transparent;
+}
+
+
+.container-calendar {
+    width: 100%;
+    min-height: 100%;
+    margin-bottom: 1em;
+    /* float:right; */
+}
+
+
+</style>

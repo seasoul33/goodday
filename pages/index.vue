@@ -8,69 +8,14 @@
             </span>
         </header>
 
-        <div class="container-calendar">
-            <v-date-picker
-                mode="single"
-                v-model="selectedSingleDate"
-                is-inline
-                is-expanded
-                :attributes="calendarAttr"
-            />
-        </div>
-
-        <span class="container-topic">
-            <autoSuggest
-                ref="first"
-                :sourceData="sourceData"
-                v-model="customerName"
-                holder="customer name..."
-            />
-        </span>
-
-        <span class="container-topic">
-            <autoSuggest
-                ref="project"
-                :sourceData="sourceData"
-                v-model="projectName"
-                holder="project name..."
-            />
-        </span>
-
-        <span class="container-topic">
-            <autoSuggest
-                ref="function"
-                :sourceData="sourceData"
-                v-model="functionName"
-                holder="function name..."
-            />
-        </span>
-
-        <span>
-            <input type="number" v-model="workHour">
-        </span>
-
-        <span class="container-topic">
-            <textarea rows="3" cols="80" placeholder="job description..."
-                v-model="jobDescription">
-            </textarea>
-        </span>
-
-        <div>
-            <b-button
-                class="new-button"
-                variant="primary"
-                @click="addRecord">+
-            </b-button>
-        </div>
-
-        <div>
-            <label>Jobs done in this day</label>
-            <ul>
-                <li>
-
-                </li>
-            </ul>
-        </div>
+        <b-tabs content-class="mt-3">
+            <b-tab title="Job Diary" active>
+                <jobInput :currentUser="currentUser" :customers="customers" :projects="projects" :features="features" />
+            </b-tab>
+            <b-tab title="Manage">
+                <manage :currentUser="currentUser" :customers="customers" :projects="projects" :features="features" />
+            </b-tab>
+        </b-tabs>
 
         <b-modal id="login-modal" hide-footer>
             <form>
@@ -107,47 +52,80 @@
 
 <script>
 import Vue from 'vue';
-import autoSuggest from '~/components/autoSuggest.vue';
-import { setupCalendar, DatePicker} from 'v-calendar'
-import 'v-calendar/lib/v-calendar.min.css';
+import jobInput from '~/pages/jobInput.vue';
+import manage from '~/pages/manage.vue';
 import io from 'socket.io-client';
 import { ToggleButton } from 'vue-js-toggle-button';
-import { Button, Modal } from 'bootstrap-vue';
+import { Button, Modal, Tabs } from 'bootstrap-vue';
 import moment from 'moment';
-const socket = io();
+const socket = io('http://127.0.0.1:3001');
 
 const timeFormat='YYYY-MM-DD  HH:mm:ss';
 let bus=new Vue();
 
-setupCalendar({
-  firstDayOfWeek: 2,  // Monday,
-});
+socket.on('data_sync', function(msg){
+    if(msg === 'customers') {
+        bus.$emit('triggerCustomer', msg);
+    }
 
-socket.on('mongo_sync', function(msg){
-    // console.log(msg);
-    const collectionFetchedBySecond = msg.bySecond.slice();
-    const collectionFetchedByTime = msg.byTime.slice();
-    bus.$emit('trigger', {collectionFetchedBySecond, collectionFetchedByTime});
+    if(msg === 'projects') {
+        bus.$emit('triggerProject', msg);
+    }
+
+    if(msg === 'features') {
+        bus.$emit('triggerFeature', msg);
+    }
 });
 
 export default {
     components: {
+        jobInput,
+        manage,
         ToggleButton,
         Button,
         Modal,
-        autoSuggest,
-        setupCalendar,
-        'v-date-picker': DatePicker,
+        Tabs,
     },
         
-    mounted: function() {
+    mounted: async function() {
         let self = this;
-        bus.$on('trigger', function(content){
-            self.topics = content.collectionFetchedBySecond;
-            self.topics_time = content.collectionFetchedByTime;
+        let res = await self.getCustomers();
+        self.customers = res.slice();
+
+        if(this.$auth.loggedIn) {
+            this.currentUser.username = this.$auth.user.username;
+        }
+
+        bus.$on('triggerCustomer', async function(content){
+            let result = await self.getCustomers();
+            // console.log('result: '+result);
+            self.customers = result.slice();
+            // self.projCustomer = self.firstCustomer;
         });
 
-        this.setFocus("first");
+        res = await self.getProjects();
+        self.projects = res.slice();
+        
+        bus.$on('triggerProject', async function(content){
+            let result = await self.getProjects();
+            // console.log('result: '+result);
+            self.projects = result.slice();
+        });
+
+        res = await self.getFeatures();
+        self.features = res.slice();
+
+        bus.$on('triggerFeature', async function(content){
+            let result = await self.getFeatures();
+            // console.log('result: '+result);
+            self.features = result.slice();
+        });
+    },
+
+    beforeDestroy: function(){
+        bus.$off('triggerCustomer', this.reset);
+        bus.$off('triggerProject', this.reset);
+        bus.$off('triggerFeature', this.reset);
     },
 
     // props: {
@@ -156,53 +134,13 @@ export default {
 
     data: function() {
         return {
+            frame:'jobInput',
             currentUser:{username:"Anonymous"},
             loginAccount: '',
             loginPasswd: '',
-            customerName: '',
-            projectName: '',
-            functionName: '',
-            workHour: 0,
-            jobDescription: '',
-            sourceData: ['lion', 'cat', 'dog', 'tiger', 'mice', 'elephant', 'mouse', 'mike', 'mom', 'mary', 'mongo'],
-            calendarAttr: [
-                {
-                    key: 'today',
-                    dot: {
-                        backgroundColor: 'red',
-                        diameter: "10px"
-                        // borderColor: 'blue',
-                        // borderWidth: "1"
-                    },
-                    dates: [new Date(),],
-                },
-                {
-                    key: 'holiday',
-                    bar: {
-                        backgroundColor: 'pink',
-                    },
-                    dates: [
-                        {weekdays: [1,7]},
-                    ],
-                },
-                {
-                    key: 'lack',
-                    highlight: {
-                        backgroundColor: 'silver',
-                    },
-                    dates: [
-                        new Date(2019, 9, 1),
-                        {
-                            start: new Date(2019, 9, 3),
-                            end: new Date(2019, 9, 4),
-                        },
-                        new Date(2019, 9, 14),
-                        new Date(2019, 9, 15),
-                    ],
-                },
-            ],
-            selectedMultiDate: [new Date(new Date().getFullYear(), new Date().getMonth(),new Date().getDate())],
-            selectedSingleDate: new Date(new Date().getFullYear(), new Date().getMonth(),new Date().getDate()),
+            customers: [],
+            projects: [],
+            features: [],
         };
     },
 
@@ -255,19 +193,25 @@ export default {
             this.currentUser.username = 'Anonymous';
         },
 
-        setFocus(refName) {
-            let refChildName = '';
-
-            // Access the first element in the $refs of the child component which is in current $refs.
-            refChildName = Object.keys(this.$refs[refName].$refs)[0];
-
-            this.$refs[refName].$refs[refChildName].focus();
+        async getCustomers() {
+            let result;
+            await this.$axios.get('api/customers')
+                .then( res => {result = res.data.customers.slice()});
+            return result;
         },
 
-        async addRecord() {
-            await this.$axios.post('record',{
-
-            });
+        async getProjects() {
+            let result;
+            await this.$axios.get('api/projects')
+                .then( res => {result = res.data.projects.slice()});
+            return result;
+        },
+        
+        async getFeatures() {
+            let result;
+            await this.$axios.get('api/features')
+                .then( res => {result = res.data.features.slice()});
+            return result;
         },
     }
 }
@@ -321,28 +265,5 @@ header.title {
     float: right;
 }
 
-.container-calendar {
-    width: 100%;
-    min-height: 100%;
-    margin-bottom: 1em;
-    /* float:right; */
-}
-
-.container-topic {
-    width: 100%;
-    /* margin-top: 1em; */
-    /* padding-bottom: 1em; */
-    min-height: 100%;
-    background: white;
-}
-
-.container-toolbar {
-    width: 25%;
-    padding-bottom: 1em;
-    min-height: 100%;
-    background: #FAEBD7;
-    color: #696969;
-    float:left;
-}
 
 </style>
