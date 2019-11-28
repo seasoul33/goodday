@@ -201,6 +201,13 @@ router.get('/jobs', async (req, res) => {
     res.send({ jobs });
     res.end();
 });
+router.delete('/jobs', async (req, res) => {
+    // console.log('Del job : ' + req.query_id);
+    const jobs = await db.deleteJob(req.query._id);
+    // console.log(jobs);
+    res.send({ jobs });
+    res.end();
+});
 
 
 // /efforts/calculate?

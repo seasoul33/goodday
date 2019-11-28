@@ -13,7 +13,7 @@
         </div>
 
         <div>
-            <span class="container-topic">
+            <span class="container-job">
                 <autoSuggest
                     ref="first"
                     :sourceData="customerNamelist"
@@ -22,7 +22,7 @@
                 />
             </span>
 
-            <span class="container-topic">
+            <span class="container-job">
                 <autoSuggest
                     ref="project"
                     :sourceData="projectNameList"
@@ -31,7 +31,7 @@
                 />
             </span>
 
-            <span class="container-topic">
+            <span class="container-job">
                 <autoSuggest
                     ref="function"
                     :sourceData="featureNameList"
@@ -44,13 +44,13 @@
                 <input type="number" v-model="workHour">
             </span>
 
-            <span class="container-topic">
+            <span class="container-job">
                 <textarea rows="3" cols="80" placeholder="job description..."
                     v-model="jobDescription">
                 </textarea>
             </span>
 
-            <span>
+            <span class="container-job">
                 <b-button
                     class="new-button"
                     size="sm"
@@ -73,9 +73,22 @@
                 striped
                 hover
                 small
+                fixed
+                :fields="fields"
                 :items="displayedJobs"
-                @row-clicked="selectJob" 
-            />
+                @row-clicked="selectJob" >
+                <template v-slot:cell(action)="data">
+                    <b-button
+                        class="new-button"
+                        size="sm"
+                        variant="danger"
+                        @click="deleteJob(data.index)">Del
+                    </b-button>
+                </template>
+                <!-- <template v-slot:cell()="data">
+                    <i>{{ data.value }}</i>
+                </template> -->
+            </b-table>
         </div>
     </div>
 </template>
@@ -171,6 +184,14 @@ export default {
             ],
             // selectedMultiDate: [new Date(new Date().getFullYear(), new Date().getMonth(),new Date().getDate())],
             selectedSingleDate: new Date(new Date().getFullYear(), new Date().getMonth(),new Date().getDate()),
+            fields:[
+                'customer',
+                'project',
+                'feature',
+                'effort',
+                'content',
+                { key: 'action', label: ''}
+            ],
         };
     },
 
@@ -236,12 +257,15 @@ export default {
             this.jobDescription = '';
             this.jobId = '';
             this.buttonString = 'Add'
+            
+            this.setFocus("first");
         },
 
         async updateJobs(){
             let result = await this.getJobs();
             // console.log('result: '+result);
             this.jobs = result.slice();
+            this.setFocus("first");
         },
 
         async addJobs() {
@@ -281,6 +305,17 @@ export default {
             // console.log('id:'+this.jobId);
 
             this.buttonString = 'Edit';
+            this.setFocus("first");
+        },
+
+        async deleteJob(index) {
+            // console.log('index=',index);
+            // console.log('content=',this.jobs[index].content);
+            // console.log('ID=',this.jobs[index]._id);
+            let queryID = '_id=' + this.jobs[index]._id;
+            await this.$axios.delete('api/jobs?'+queryID);
+
+            this.updateJobs();
         },
     }
 }
@@ -326,5 +361,8 @@ body {
     /* float:right; */
 }
 
+.container-job {
+    float: left;
+}
 
 </style>

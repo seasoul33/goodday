@@ -18,7 +18,8 @@
                 class="suggestItem"
                 @mousedown="selectSuggestion(result)"
                 :class="{'active': i === cursorPosition}"
-                @mouseover="cursorPosition = i">{{result}}
+                @mouseover="cursorPosition = i">
+                {{result}}
             </li>
         </ul>
     </section>

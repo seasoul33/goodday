@@ -56,7 +56,7 @@ import jobInput from '~/pages/jobInput.vue';
 import manage from '~/pages/manage.vue';
 import io from 'socket.io-client';
 import { ToggleButton } from 'vue-js-toggle-button';
-import { Button, Modal, Tabs } from 'bootstrap-vue';
+import { BButton, BModal, BTabs } from 'bootstrap-vue';
 import moment from 'moment';
 const socket = io('http://127.0.0.1:3001');
 
@@ -82,9 +82,6 @@ export default {
         jobInput,
         manage,
         ToggleButton,
-        Button,
-        Modal,
-        Tabs,
     },
         
     mounted: async function() {

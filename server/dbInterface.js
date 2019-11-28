@@ -84,7 +84,7 @@ function socketinit() {
 
 export function init(IPPort, callback) {
     let url = "mongodb://" + IPPort + "/myDB?replicaSet=replocal";
-    mongoose.connect(url, { useNewUrlParser: true }, (err, res) => {
+    mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, res) => {
         if (err) {
             console.log('Failed to connected to ' + url);
             return null;
@@ -217,6 +217,16 @@ export async function updateJob(job) {
     let result = true;
     // console.log(job);
     await jobCollect.updateOne({ _id: job._id }, job, { upsert: true },
+        function (err, result) {
+            result = false;
+        });
+    return result;
+}
+
+export async function deleteJob(id) {
+    let result = true;
+    // console.log(id);
+    await jobCollect.deleteOne({ _id: id },
         function (err, result) {
             result = false;
         });
