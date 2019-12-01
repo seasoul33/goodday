@@ -1,28 +1,34 @@
 <template>
-    <section>
-        <input type="text" ref="input" class="input"
-            @input="$emit('input', $event.target.value)"
-            v-model="content"
-            :placeholder="holder"
-            :size="fieldSize"
-            :maxlength="fieldSize"
-            @focus="onFocused"
-            @blur="onBlur"
-            @keydown.up.prevent="onKeyUp"
-            @keydown.down.prevent="onKeyDown"
-            @keydown.enter.prevent="onKeyEnter"
-            @keydown.esc.prevent="onKeyESC">
-        <ul v-show="isDisplayed" class="suggestList">
-            <li v-for="(result, i) in trimResult" 
-                :key="i"
-                class="suggestItem"
-                @mousedown="selectSuggestion(result)"
-                :class="{'active': i === cursorPosition}"
-                @mouseover="cursorPosition = i">
-                {{result}}
-            </li>
-        </ul>
-    </section>
+    <div>
+        <style>
+            :root {
+                --input-width: {{ fieldSizePX }};
+            }
+        </style>
+        <div class="autosuggest">
+            <input type="text" ref="input" class="input"
+                @input="$emit('input', $event.target.value)"
+                v-model="content"
+                :placeholder="holder"
+                :maxlength="inputLength"
+                @focus="onFocused"
+                @blur="onBlur"
+                @keydown.up.prevent="onKeyUp"
+                @keydown.down.prevent="onKeyDown"
+                @keydown.enter.prevent="onKeyEnter"
+                @keydown.esc.prevent="onKeyESC">
+            <ul v-show="isDisplayed" class="suggestList">
+                <li v-for="(result, i) in trimResult" 
+                    :key="i"
+                    class="suggestItem"
+                    @mousedown="selectSuggestion(result)"
+                    :class="{'active': i === cursorPosition}"
+                    @mouseover="cursorPosition = i">
+                    {{result}}
+                </li>
+            </ul>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -42,7 +48,11 @@ export default {
         },
         fieldSize: {
             type: Number,
-            default: 20,
+            default: 150,
+        },
+        inputLength: {
+            type: Number,
+            default: 15,
         },
         holder: String,
         forcedSuggest: {
@@ -64,6 +74,9 @@ export default {
     computed: {
         trimResult: function() {
             return this.results.slice(0, this.maxSuggestNum);
+        },
+        fieldSizePX: function() {
+            return this.fieldSize + 'px';
         },
     },
 
@@ -170,12 +183,26 @@ export default {
 <style>
 .input {
     background: white;
+    width: inherit;
+}
+
+.autosuggest {
+    position: relative;
+    display: inline-block;
+    width: var(--input-width);
+}
+
+.suggestList {
+    width: inherit;
+    position: absolute;
+    z-index: 99;
 }
 
 .suggestItem {
     margin-left: -2.5em;
     list-style:none;
     background: white;
+    cursor: pointer;
 }
 .active {
     background-color:silver;
