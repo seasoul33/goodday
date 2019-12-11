@@ -187,8 +187,8 @@ export default {
 }
 
 .autosuggest {
-    position: relative;
-    display: inline-block;
+    /* position: relative; */
+    /* display: inline-block; */
     width: var(--input-width);
 }
 
@@ -199,7 +199,7 @@ export default {
 }
 
 .suggestItem {
-    margin-left: -2.5em;
+    margin-left: -2.7em;
     list-style:none;
     background: white;
     cursor: pointer;

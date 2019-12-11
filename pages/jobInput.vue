@@ -13,7 +13,8 @@
         </div>
 
         <div>
-            <span class="container-job">
+            <span class="container-input">
+                Customer:
                 <autoSuggest
                     ref="first"
                     :sourceData="customerNamelist"
@@ -22,7 +23,8 @@
                 />
             </span>
 
-            <span class="container-job">
+            <span class="container-input">
+                Project:
                 <autoSuggest
                     ref="project"
                     :sourceData="projectNameList"
@@ -31,7 +33,8 @@
                 />
             </span>
 
-            <span class="container-job">
+            <span class="container-input">
+                Feature/Function:
                 <autoSuggest
                     ref="function"
                     :sourceData="featureNameList"
@@ -41,16 +44,21 @@
             </span>
 
             <span>
-                <input type="number" v-model="workHour">
+                Effort in hour:
+                <br />
+                <input type="number" v-model="workHour" class="container-effort">
+                <br />
             </span>
 
-            <span class="container-job">
-                <textarea rows="3" cols="80" placeholder="job description..."
+            <span class="container-input">
+                Job description:
+                <br />
+                <textarea class="container-text" placeholder="job description..."
                     v-model="jobDescription">
                 </textarea>
             </span>
 
-            <span class="container-job">
+            <div class="container-button">
                 <b-button
                     class="new-button"
                     size="sm"
@@ -63,7 +71,7 @@
                     variant="primary"
                     @click="clearJob">Clear
                 </b-button>
-            </span>
+            </div>
         </div>
 
         <div>
@@ -346,9 +354,6 @@ body {
 
 .container {
     max-width: 800px;
-    /* margin: 0 auto; */
-    /* margin-bottom: 1em; */
-    /* padding-bottom: 1em; */
     min-height: 100%;
     background: transparent;
 }
@@ -361,8 +366,22 @@ body {
     /* float:right; */
 }
 
-.container-job {
+.container-input {
     float: left;
+}
+
+.container-text {
+    float: left;
+    width: 410px;
+    height: 68px;
+}
+
+.container-button {
+    padding-top: 8%;
+}
+
+.container-effort {
+    width: 60px;
 }
 
 </style>

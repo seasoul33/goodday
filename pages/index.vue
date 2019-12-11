@@ -250,7 +250,9 @@ header.title {
 }
 
 .container {
-    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    /* max-width: 800px; */
     /* margin: 0 auto; */
     /* margin-bottom: 1em; */
     /* padding-bottom: 1em; */

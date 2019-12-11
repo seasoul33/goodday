@@ -1,16 +1,14 @@
 import mongoose from 'mongoose';
-import { getConsoleOutput } from '@jest/console';
 let _ = require('lodash');
 let http = require('http').createServer().listen(3001, '0.0.0.0');
 let io = require('socket.io').listen(http);
 let socket_io;
-let dbCollection;
 let userCollect = null;
 let customerCollect = null;
 let projectCollect = null;
 let featureCollect = null;
 let jobCollect = null;
-let ObjectId = mongoose.Schema.Types.ObjectId;
+// let ObjectId = mongoose.Schema.Types.ObjectId;
 
 const userSchema = {
     username: String,

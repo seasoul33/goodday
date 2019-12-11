@@ -2,20 +2,23 @@
     <section class="container">
         <div class="area">
             <span>
+                Customer Name:
                 <input
                     v-model="customerName"
                     type="text"
                     placeholder="Customer name..."
-                />*<br />
+                /><br />
+                Customer Info:
                 <input
                     v-model="customerInfo"
                     type="text"
                     placeholder="Customer Information..."
                 /><br />
+                Internal:
                 <select v-model="isInternalCustomer">
                     <option value="true">True</option>
                     <option value="false">False</option>
-                </select>
+                </select><br />
                 <b-button
                     class="new-button"
                     variant="primary"
@@ -29,21 +32,25 @@
         </div>
         <div class="area">
             <span>
+                Project Name:
                 <input
                     v-model="projectName"
                     type="text"
                     placeholder="Project name..."
-                />*<br />
+                /><br />
+                Project other names:
                 <input
                     v-model="projOtherNames"
                     type="text"
                     placeholder="Other names..."
-                /><br />
+                />(split by ,)<br />
+                Under which Customer:
                 <select v-model="projCustomer">
                     <option v-for="customer in customers" :value="customer.name">
                         {{customer.name}}
                     </option>
                 </select><br />
+                Project Info:
                 <input
                     v-model="projDescription"
                     type="text"
@@ -62,40 +69,47 @@
         </div>
         <div class="area">
             <span>
+                Feature Name:
                 <input
                     v-model="featureName"
                     type="text"
                     placeholder="New feature name..."
                 /><br />
+                Feature other names:
                 <input
                     v-model="featOtherNames"
                     type="text"
                     placeholder="Other names..."
-                /><br />
+                />(split by ,)<br />
+                Feature Info:
                 <input
                     v-model="featDescription"
                     type="text"
                     placeholder="Feature description..."
                 /><br />
+                Main category:
                 <input
                     v-model="mainCategory"
                     type="text"
                     placeholder="Main Category..."
                 /><br />
+                Sub category:
                 <input
                     v-model="subCategory"
                     type="text"
                     placeholder="Sub Category..."
                 /><br />
+                Reference:
                 <input
                     v-model="reference"
                     type="text"
                     placeholder="Reference..."
                 /><br />
+                Internal:
                 <select v-model="isInternalFeature">
                     <option value="true">True</option>
                     <option value="false">False</option>
-                </select>
+                </select><br />
                 <b-button
                     class="new-button"
                     variant="primary"
