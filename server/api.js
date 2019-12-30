@@ -209,6 +209,55 @@ router.delete('/jobs', async (req, res) => {
     res.end();
 });
 
+router.get('/offdays', async (req, res) => {
+    // console.log('GET offdays');
+    const offdays = await db.findOffday();
+    // console.log(offdays);
+    res.send({ offdays });
+    res.end();
+});
+router.put('/offdays', async (req, res) => {
+    // console.log('PUT offdays : ' + req.body.offdays);
+
+    let result;
+    
+    if (req.body.offdays === null) {
+        result = await db.deleteOffday(req.body.offdays);
+        if (result !== true) {
+            res.status(500).send({ error: 'Empty offday Failed!' });
+        }
+        res.end();
+        return;
+    }
+    
+    const oldOffdays = await db.findOffday();
+    
+    req.body.offdays.forEach(async function(newOffday) {
+        const found = oldOffdays.find(e => e.date === newOffday);
+        if (found === undefined) {
+            result = await db.createOffday({date: newOffday});
+            
+            if (result !== true) {
+                res.status(500).send({ error: 'Add offday Failed!' });
+                res.end();
+            }
+        }
+    });
+
+    oldOffdays.forEach(async function (oldOffday) {
+        const found = req.body.offdays.find(e => e === oldOffday.date);
+        if (found === undefined) {
+            result = await db.deleteOffday(oldOffday);
+
+            if (result !== true) {
+                res.status(500).send({ error: 'Remove offday Failed!' });
+                res.end();
+            }
+        }
+    });
+
+    res.end();
+});
 
 // /efforts/calculate?
 

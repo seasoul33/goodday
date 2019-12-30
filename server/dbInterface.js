@@ -8,6 +8,7 @@ let customerCollect = null;
 let projectCollect = null;
 let featureCollect = null;
 let jobCollect = null;
+let offdayCollect = null;
 // let ObjectId = mongoose.Schema.Types.ObjectId;
 
 const userSchema = {
@@ -63,6 +64,10 @@ const jobSchema = {
     date: String,
 }
 
+const offdaySchema = {
+    date: String,
+}
+
 async function changeCallback(who) {
     // console.log("DB updated...");
 
@@ -93,6 +98,7 @@ export function init(IPPort, callback) {
             projectCollect = mongoose.model('projects', new mongoose.Schema(projectSchema));
             featureCollect = mongoose.model('features', new mongoose.Schema(featureSchema));
             jobCollect = mongoose.model('jobs', new mongoose.Schema(jobSchema));
+            offdayCollect = mongoose.model('offdays', new mongoose.Schema(offdaySchema));
 
             customerCollect.watch().on('change', function(){
                 changeCallback('customers');
@@ -104,6 +110,10 @@ export function init(IPPort, callback) {
 
             featureCollect.watch().on('change', function () {
                 changeCallback('features');
+            });
+
+            offdayCollect.watch().on('change', function () {
+                changeCallback('offdays');
             });
 
             socketinit();
@@ -135,8 +145,10 @@ export async function findFeature(featureName) {
 
 export async function createFeature(feature) {
     let result = true;
-    await featureCollect.insertMany(feature, function (err, result) {
-        result = false;
+    await featureCollect.insertMany(feature, function (err, data) {
+        if (err) {
+            result = false;
+        }
     });
     return result;
 }
@@ -144,8 +156,10 @@ export async function createFeature(feature) {
 export async function updateFeature(feature) {
     let result = true;
     await featureCollect.updateOne({ name: feature.name }, feature, { upsert: true },
-        function (err, result) {
-            result = false;
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
         });
     return result;
 }
@@ -159,8 +173,10 @@ export async function findCustomer(customerName) {
 
 export async function createCustomer(customer) {
     let result = true;
-    await customerCollect.insertMany(customer, function(err, result) {
-        result = false;
+    await customerCollect.insertMany(customer, function (err, data) {
+        if (err) {
+            result = false;
+        }
     });
     return result;
 }
@@ -168,9 +184,11 @@ export async function createCustomer(customer) {
 export async function updateCustomer(customer) {
     let result = true;
     await customerCollect.updateOne({ name: customer.name }, customer, { upsert: true },
-            function(err, result){
+        function (err, data){
+            if (err) {
                 result = false;
-            });
+            }
+        });
     return result;
 }
 
@@ -183,8 +201,10 @@ export async function findProject(projectName) {
 
 export async function createProject(project) {
     let result = true;
-    await projectCollect.insertMany(project, function (err, result) {
-        result = false;
+    await projectCollect.insertMany(project, function (err, data) {
+        if (err) {
+            result = false;
+        }
     });
     return result;
 }
@@ -192,8 +212,10 @@ export async function createProject(project) {
 export async function updateProject(project) {
     let result = true;
     await projectCollect.updateOne({ name: project.name }, project, { upsert: true },
-        function (err, result) {
-            result = false;
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
         });
     return result;
 }
@@ -205,8 +227,10 @@ export async function findJob(filter) {
 
 export async function createJob(job) {
     let result = true;
-    await jobCollect.insertMany(job, function (err, result) {
-        result = false;
+    await jobCollect.insertMany(job, function (err, data) {
+        if (err) {
+            result = false;
+        }
     });
     return result;
 }
@@ -215,8 +239,10 @@ export async function updateJob(job) {
     let result = true;
     // console.log(job);
     await jobCollect.updateOne({ _id: job._id }, job, { upsert: true },
-        function (err, result) {
-            result = false;
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
         });
     return result;
 }
@@ -225,8 +251,65 @@ export async function deleteJob(id) {
     let result = true;
     // console.log(id);
     await jobCollect.deleteOne({ _id: id },
-        function (err, result) {
-            result = false;
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
         });
     return result;
 }
+
+export async function findOffday() {
+    return await offdayCollect.find({}).slice();
+}
+
+export async function createOffday(offday) {
+    let result = true;
+    await offdayCollect.insertMany(offday, function (err, data) {
+        if (err) {
+            result = false;
+        }
+    });
+    return result;
+}
+
+export async function deleteOffday(offday) {
+    let result = true;
+    if(offday === null) {
+        await offdayCollect.deleteMany({}, function (err, data) {
+            if(err) {
+                result = false;
+            }
+        });
+    }
+    else {
+        await offdayCollect.deleteOne({ date: offday.date }, function (err, data) {
+            if (err) {
+                result = false;
+            }
+        });
+    }
+    return result;
+}
+
+// export async function updateOffday(offdays) {
+//     let result = true;
+//     let bulkUpdateOps = [];
+//     // console.log(offdays);
+
+//     offdays.forEach(element => {
+//         bulkUpdateOps.push({
+//             "updateOne": {
+//                 "filter": {"offday": element},
+//                 "update": element
+//             }
+//         });
+//     });
+//     await offdayCollect.bulkWrite(bulkUpdateOps, {"ordered":true, w:1}, function(err, data) {
+//         if(err) {
+//             result = false;
+//         }
+//     });
+
+//     return result;
+// }

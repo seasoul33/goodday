@@ -110,8 +110,6 @@ import { BTable } from 'bootstrap-vue';
 import moment from 'moment';
 import lang from 'lodash/lang';
 
-const timeFormat='YYYY-MM-DD  HH:mm:ss';
-
 setupCalendar({
   firstDayOfWeek: 2,  // Monday,
 });
@@ -133,6 +131,9 @@ export default {
         customers: Array,
         projects: Array,
         features: Array,
+        today: Object,
+        holiday: Object,
+        offday: Array,
     },
 
     watch: {
@@ -140,6 +141,13 @@ export default {
             deep: true,
             handler(newVal, oldVal) {
                 this.updateJobs();
+            },
+        },
+
+        offday: {
+            deep: true,
+            handler(value) {
+                this.offdayAttr = lang.cloneDeep(value);
             },
         },
     },
@@ -154,43 +162,6 @@ export default {
             workHour: 0,
             jobDescription: '',
             jobId: '',
-            calendarAttr: [
-                {
-                    key: 'today',
-                    dot: {
-                        backgroundColor: 'red',
-                        diameter: "10px"
-                        // borderColor: 'blue',
-                        // borderWidth: "1"
-                    },
-                    dates: [new Date(),],
-                },
-                {
-                    key: 'holiday',
-                    bar: {
-                        backgroundColor: 'pink',
-                    },
-                    dates: [
-                        {weekdays: [1,7]},
-                    ],
-                },
-                {
-                    key: 'lack',
-                    highlight: {
-                        backgroundColor: 'silver',
-                    },
-                    dates: [
-                        new Date(2019, 9, 1),
-                        {
-                            start: new Date(2019, 9, 3),
-                            end: new Date(2019, 9, 4),
-                        },
-                        new Date(2019, 9, 14),
-                        new Date(2019, 9, 15),
-                    ],
-                },
-            ],
-            // selectedMultiDate: [new Date(new Date().getFullYear(), new Date().getMonth(),new Date().getDate())],
             selectedSingleDate: new Date(new Date().getFullYear(), new Date().getMonth(),new Date().getDate()),
             fields:[
                 'customer',
@@ -200,6 +171,7 @@ export default {
                 'content',
                 { key: 'action', label: ''}
             ],
+            offdayAttr: this.offday,
         };
     },
 
@@ -207,6 +179,16 @@ export default {
         loginAccount: function() {
             this.updateJobs();
             return this.currentUser.username;
+        },
+
+        calendarAttr: function() {
+            return [this.today, this.holiday, {
+                key: 'offday',
+                highlight: {
+                    backgroundColor: 'silver',
+                },
+                dates: this.offdayAttr,
+            }];
         },
 
         customerNamelist: function(){

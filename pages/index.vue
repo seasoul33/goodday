@@ -10,10 +10,13 @@
 
         <b-tabs content-class="mt-3">
             <b-tab title="Job Diary" active>
-                <jobInput :currentUser="currentUser" :customers="customers" :projects="projects" :features="features" />
+                <jobInput :currentUser="currentUser" :customers="customers" :projects="projects" :features="features" :today="today" :holiday="holiday" :offday="offdays" />
             </b-tab>
             <b-tab title="Manage">
                 <manage :currentUser="currentUser" :customers="customers" :projects="projects" :features="features" />
+            </b-tab>
+            <b-tab title="Holiday Manage">
+                <holidayManage :today="today" :holiday="holiday" :offday="offdays" />
             </b-tab>
         </b-tabs>
 
@@ -54,13 +57,13 @@
 import Vue from 'vue';
 import jobInput from '~/pages/jobInput.vue';
 import manage from '~/pages/manage.vue';
+import holidayManage from '~/pages/holidayManage.vue';
 import io from 'socket.io-client';
 import { ToggleButton } from 'vue-js-toggle-button';
 import { BButton, BModal, BTabs } from 'bootstrap-vue';
 import moment from 'moment';
 const socket = io('http://127.0.0.1:3001');
 
-const timeFormat='YYYY-MM-DD  HH:mm:ss';
 let bus=new Vue();
 
 socket.on('data_sync', function(msg){
@@ -75,12 +78,17 @@ socket.on('data_sync', function(msg){
     if(msg === 'features') {
         bus.$emit('triggerFeature', msg);
     }
+
+    if(msg === 'offdays') {
+        bus.$emit('triggerOffday', msg);
+    }
 });
 
 export default {
     components: {
         jobInput,
         manage,
+        holidayManage,
         ToggleButton,
     },
         
@@ -117,12 +125,22 @@ export default {
             // console.log('result: '+result);
             self.features = result.slice();
         });
+
+        res = await self.getOffdays();
+        self.offdays = res.slice().map(e => {return new Date(e.date)});
+
+        bus.$on('triggerOffday', async function(content){
+            let result = await self.getOffdays();
+            // console.log('result: '+result);
+            self.offdays = result.slice().map(e => {return new Date(e.date)});
+        });
     },
 
     beforeDestroy: function(){
         bus.$off('triggerCustomer', this.reset);
         bus.$off('triggerProject', this.reset);
         bus.$off('triggerFeature', this.reset);
+        bus.$off('triggerOffday', this.reset);
     },
 
     // props: {
@@ -138,11 +156,61 @@ export default {
             customers: [],
             projects: [],
             features: [],
+            offdays: [],
+            today: {
+                        key: 'today',
+                        dot: {
+                            backgroundColor: 'red',
+                            diameter: "10px"
+                            // borderColor: 'blue',
+                            // borderWidth: "1"
+                        },
+                        dates: [new Date(),],
+                    },
+            holiday: {
+                        key: 'holiday',
+                        bar: {
+                            backgroundColor: 'pink',
+                        },
+                        dates: [
+                            {weekdays: [1,7]},
+                        ],
+                    },
         };
     },
 
     computed: {
-        
+        calendarAttr: function() {
+                return [
+                    {
+                        key: 'today',
+                        dot: {
+                            backgroundColor: 'red',
+                            diameter: "10px"
+                            // borderColor: 'blue',
+                            // borderWidth: "1"
+                        },
+                        dates: [new Date(),],
+                    },
+                    {
+                        key: 'holiday',
+                        bar: {
+                            backgroundColor: 'pink',
+                        },
+                        dates: [
+                            {weekdays: [1,7]},
+                        ],
+                    },
+                    {
+                        key: 'offday',
+                        highlight: {
+                            backgroundColor: 'silver',
+                        },
+                        dates: this.offdays,
+                        // dates: [new Date(2019, 12, 19)],
+                    },
+                ];
+        },
     },
 
     methods: {
@@ -208,6 +276,13 @@ export default {
             let result;
             await this.$axios.get('api/features')
                 .then( res => {result = res.data.features.slice()});
+            return result;
+        },
+
+        async getOffdays() {
+            let result;
+            await this.$axios.get('api/offdays')
+                .then( res => {result = res.data.offdays.slice()});
             return result;
         },
     }
