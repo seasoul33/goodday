@@ -10,10 +10,14 @@ let featureCollect = null;
 let jobCollect = null;
 let offdayCollect = null;
 // let ObjectId = mongoose.Schema.Types.ObjectId;
+export const priviledge = {'normal': 1,
+                           'administrator': 2, 
+};
 
 const userSchema = {
-    username: String,
+    name: String,
     password: String,
+    group: Number,
     history: {
         customer: Array,
         project: Array,
@@ -100,6 +104,10 @@ export function init(IPPort, callback) {
             jobCollect = mongoose.model('jobs', new mongoose.Schema(jobSchema));
             offdayCollect = mongoose.model('offdays', new mongoose.Schema(offdaySchema));
 
+            userCollect.watch().on('change', function(){
+                changeCallback('users');
+            });
+            
             customerCollect.watch().on('change', function(){
                 changeCallback('customers');
             });
@@ -121,19 +129,37 @@ export function init(IPPort, callback) {
     });
 }
 
-export async function registerUser(user, passwd) {
+export async function registerUser(user, passwd, groupNumber) {
     const account = await searchUser(user);
     if (account == null) {
-        await userCollect.insertMany({ username: user, password: passwd });
+        await userCollect.insertMany({ name: user, password: passwd, group: groupNumber});
         return 'ok';
     }
     return 'existed';
 }
 
 export async function searchUser(user) {
-    const account = await userCollect.findOne({ username: user }).exec();
+    const account = await userCollect.findOne({ name: user }).exec();
     // console.log(account);
     return account;
+}
+
+export async function findUser(userName) {
+    if (userName === '') {
+        return await userCollect.find({}).sort({ name: 1 }).slice();
+    }
+    return await userCollect.findOne({ name: userName }).exec();
+}
+
+export async function updateUser(user) {
+    let result = true;
+    await userCollect.updateOne({ name: user.name }, user, { upsert: true },
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
+        });
+    return result;
 }
 
 export async function findFeature(featureName) {

@@ -121,6 +121,36 @@
                 <b-form-select v-model="selectedFeatureName" :options="featureList" :select-size="5" @input="selectFeature"></b-form-select>
             </span>
         </div>
+        <div class="area">
+            <span>
+                Username:
+                <input
+                    v-model="userName"
+                    type="text"
+                    placeholder="User name..."
+                /><br />
+                Password:
+                <input
+                    v-model="userPasswd"
+                    type="password"
+                    placeholder="User password..."
+                /><br />
+                Group:
+                <input
+                    v-model="userGroup"
+                    type="number"
+                /><br />
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="addUser">Add/Edit User
+                </b-button>
+            </span>
+            <span>
+                <b-form-select v-model="selectedUserName" :options="userList" :select-size="5" @input="selectUser"></b-form-select>
+            </span>
+        </div>
     </section>
 </template>
 
@@ -137,6 +167,7 @@ export default {
         customers: Array,
         projects: Array,
         features: Array,
+        users: Array,
     },
 
     mounted: function() {
@@ -162,10 +193,18 @@ export default {
             subCategory: '',
             reference: '',
             isInternalFeature: false,
+            userName: '',
+            selectedUserName: '',
+            userPasswd: '',
+            userGroup: 1,
         };
     },
 
     computed: {
+        userList: function() {
+            return this.buildList(this.users, 'Edit a user...?');
+        },
+        
         customerList: function(){
             return this.buildList(this.customers, 'Edit a customer...?');
         },
@@ -189,6 +228,28 @@ export default {
                 return {value: element.name, text:element.name};
             });
             return [{value: null, text: placeholder}, ...optionList];
+        },
+
+        async addUser() {
+            await this.$axios.put('api/users', {
+                name: this.userName,
+                password: this.userPasswd,
+                group: this.userGroup,
+            });
+        },
+
+        selectUser() {
+            if(this.selectedUserName === null) {
+                this.userName = '';
+                this.userPasswd = '';
+                this.userGroup = 1;
+                return;
+            }
+            const self = this;
+            const selected = this.users.find(element => {return element.name === self.selectedUserName});
+            this.userName = selected.name;
+            this.userPasswd = selected.password;
+            this.userGroup = selected.group;
         },
         
         async addCustomer() {
