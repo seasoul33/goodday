@@ -12,10 +12,10 @@
             <b-tab title="Job Diary" active>
                 <jobInput :currentUser="currentUser" :customers="customers" :projects="projects" :features="features" :today="today" :holiday="holiday" :offday="offdays" />
             </b-tab>
-            <b-tab title="Manage">
-                <manage :currentUser="currentUser" :customers="customers" :projects="projects" :features="features" />
+            <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Manage">
+                <manage :users="users" :currentUser="currentUser" :customers="customers" :projects="projects" :features="features" />
             </b-tab>
-            <b-tab title="Holiday Manage">
+            <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Holiday Manage">
                 <holidayManage :today="today" :holiday="holiday" :offday="offdays" />
             </b-tab>
         </b-tabs>
@@ -62,11 +62,19 @@ import io from 'socket.io-client';
 import { ToggleButton } from 'vue-js-toggle-button';
 import { BButton, BModal, BTabs } from 'bootstrap-vue';
 import moment from 'moment';
-const socket = io('http://127.0.0.1:3001');
+//const socket = io('http://127.0.0.1:3001');
+const socket = io('http://hityang.noip.me:3001');
+const priviledge = {'normal': 1,
+                    'administrator': 2, 
+};
 
 let bus=new Vue();
 
 socket.on('data_sync', function(msg){
+    if(msg === 'users') {
+        bus.$emit('triggerUser', msg);
+    }
+    
     if(msg === 'customers') {
         bus.$emit('triggerCustomer', msg);
     }
@@ -94,18 +102,28 @@ export default {
         
     mounted: async function() {
         let self = this;
-        let res = await self.getCustomers();
-        self.customers = res.slice();
-
+        let res;
+        
         if(this.$auth.loggedIn) {
-            this.currentUser.username = this.$auth.user.username;
+            this.currentUser.name = this.$auth.user.name;
         }
+
+        res = await self.getUsers();
+        self.users = res.slice();
+
+        bus.$on('triggerUser', async function(content){
+            let result = await self.getUsers();
+            // console.log('result: '+result);
+            self.users = result.slice();
+        });
+
+        res = await self.getCustomers();
+        self.customers = res.slice();
 
         bus.$on('triggerCustomer', async function(content){
             let result = await self.getCustomers();
             // console.log('result: '+result);
             self.customers = result.slice();
-            // self.projCustomer = self.firstCustomer;
         });
 
         res = await self.getProjects();
@@ -150,9 +168,9 @@ export default {
     data: function() {
         return {
             frame:'jobInput',
-            currentUser:{username:"Anonymous"},
             loginAccount: '',
             loginPasswd: '',
+            users: [],
             customers: [],
             projects: [],
             features: [],
@@ -176,6 +194,8 @@ export default {
                             {weekdays: [1,7]},
                         ],
                     },
+            PRIVILEDGE_NORMAL: priviledge.normal,
+            PRIVILEDGE_ADMIN: priviledge.administrator,
         };
     },
 
@@ -211,6 +231,17 @@ export default {
                     },
                 ];
         },
+
+        currentUser: function() {
+            if(this.$auth.loggedIn) {
+                return { name: this.$auth.user.name,
+                         group: this.$auth.user.group
+                         };
+            }
+            else {
+                return {name:"Anonymous", group: this.PRIVILEDGE_NORMAL};
+            }
+        },
     },
 
     methods: {
@@ -221,7 +252,7 @@ export default {
             
             await this.$auth.loginWith('local', {
                     data: {
-                        "username": this.loginAccount,
+                        "name": this.loginAccount,
                         "password": this.loginPasswd
                     }
                 }).catch(err => {
@@ -231,14 +262,11 @@ export default {
             this.loginAccount = '';
             this.loginPasswd = '';
             this.$bvModal.hide('login-modal');
-            if(this.$auth.loggedIn) {
-                this.currentUser.username = this.$auth.user.username;
-            }
         },
 
         async signup() {
             await this.$axios.post('api/register', {
-                username: this.loginAccount,
+                name: this.loginAccount,
                 password: this.loginPasswd
             });
 
@@ -248,14 +276,24 @@ export default {
         check(){
             console.log(this.$auth.loggedIn);
             if(this.$auth.loggedIn) {
-                console.log(this.$auth.user.username);
+                console.log(this.$auth.user.name);
+                console.log(this.$auth.user.group);
             }
-            console.log(this.currentUser.username);
+            console.log(this.currentUser.name);
+            console.log(this.currentUser.group);
         },
 
         async logout() {
             await this.$auth.logout();
-            this.currentUser.username = 'Anonymous';
+            this.currentUser.name = 'Anonymous';
+            this.currentUser.group = this.PRIVILEDGE_NORMAL;
+        },
+
+        async getUsers() {
+            let result;
+            await this.$axios.get('api/users')
+                .then( res => {result = res.data.users.slice()});
+            return result;
         },
 
         async getCustomers() {

@@ -262,31 +262,54 @@ router.put('/offdays', async (req, res) => {
 // /efforts/calculate?
 
 router.post('/register', async (req, res, next) => {
-    const { username, password } = req.body;
-    const result = await db.registerUser(username, password);
+    const { name, password } = req.body;
+    const group = (name === 'admin') ? db.priviledge.administrator:db.priviledge.normal;
+    const result = await db.registerUser(name, password, group);
     // TODO: Need more error handling
     if (result === 'existed') {
         res.send({ message: 'existed' });
     }
     res.end();
 });
+router.put('/users', async (req, res) => {
+    // console.log('PUT users');
+    const result = await db.updateUser({
+        name: req.body.name,
+        password: req.body.password,
+        group: req.body.group,
+    });
+
+    if (result !== true) {
+        res.status(500).send({ error: 'create/update user Failed!' });
+    }
+    res.end();
+});
+router.get('/users', async (req, res) => {
+    // console.log('GET users');
+    const users = await db.findUser('');
+    // console.log(users);
+    res.send({ users });
+    res.end();
+});
+
 
 router.post('/auth/login', async (req, res) => {
-    const { username, password } = req.body;
-    const userFound = await db.searchUser(username);
+    const { name, password } = req.body;
+    const userFound = await db.searchUser(name);
     const valid = (userFound.password === password);
+    // console.log(userFound);
 
     if (!valid) {
         res.status(401).send({ message: 'Invalid username or password' });
         return;
     }
-    const accessToken = jsonwebtoken.sign({ username }, 'dummy');
+    const accessToken = jsonwebtoken.sign({ userFound }, 'dummy');
 
     res.json({ token: accessToken })
 });
 router.get('/auth/user', jwt({ secret: 'dummy' }), (req, res, next) => {
     // console.log(req.user);
-    res.json({ user: req.user })
+    res.json({ user: req.user.userFound })
 })
 router.post('/auth/logout', (req, res, next) => {
     res.json({ status: 'OK' })
