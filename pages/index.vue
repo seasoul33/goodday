@@ -155,6 +155,7 @@ export default {
     },
 
     beforeDestroy: function(){
+        bus.$off('triggerUser', this.reset);
         bus.$off('triggerCustomer', this.reset);
         bus.$off('triggerProject', this.reset);
         bus.$off('triggerFeature', this.reset);
