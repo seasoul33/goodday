@@ -63,7 +63,14 @@
                     class="new-button"
                     size="sm"
                     variant="primary"
-                    @click="addJobs">{{buttonString}}
+                    @click="addJobs('add')">Add
+                </b-button>
+                <b-button
+                    class="new-button"
+                    size="sm"
+                    variant="primary"
+                    :disabled="editButtonDisabled"
+                    @click="addJobs('edit')">Edit
                 </b-button>
                 <b-button
                     class="new-button"
@@ -154,7 +161,7 @@ export default {
 
     data: function() {
         return {
-            buttonString: 'Add',
+            editButtonDisabled: true,
             jobs: [],
             customerName: '',
             projectName: '',
@@ -178,7 +185,7 @@ export default {
     computed: {
         loginAccount: function() {
             this.updateJobs();
-            return this.currentUser.username;
+            return this.currentUser.name;
         },
 
         calendarAttr: function() {
@@ -246,7 +253,7 @@ export default {
             this.workHour = 0;
             this.jobDescription = '';
             this.jobId = '';
-            this.buttonString = 'Add'
+            this.editButtonDisabled = true;
             
             this.setFocus("first");
         },
@@ -258,20 +265,38 @@ export default {
             this.setFocus("first");
         },
 
-        async addJobs() {
+        async addJobs(type) {
+            let id = '';
+            if(type === 'add') {
+                id = '';
+            }
+            else if(type === 'edit') {
+                id = this.jobId;
+            }
+
             await this.$axios.put('api/jobs',{
-                _id: this.jobId,
+                _id: id,
                 customer: this.customerName,
                 project: this.projectName,
                 feature: this.featureName,
                 effort: this.workHour,
                 content: this.jobDescription,
-                owner: this.currentUser.username,
+                owner: this.currentUser.name,
                 date: this.selectedDateString,
             });
 
+            // await this.$axios.put('api/userhistory',{
+            //     name: this.currentUser.name,
+            //     history: {  customer: this.customerName,
+            //                 project: this.projectName,
+            //                 feature: this.featureName,
+            //                 jobDescrition: this.jobDescription,
+            //             },
+
+            // });
+
             this.jobId= '';
-            this.buttonString = 'Add';
+            this.editButtonDisabled = true;
 
             this.updateJobs();
         },
@@ -279,7 +304,7 @@ export default {
         async getJobs() {
             let result;
             let queryDate = 'date=' + this.selectedDateString;
-            let queryUser = 'user=' + this.currentUser.username;
+            let queryUser = 'user=' + this.currentUser.name;
             await this.$axios.get('api/jobs?' + queryDate + '&' + queryUser)
                 .then( res => {result = res.data.jobs.slice()});
             return result;
@@ -294,7 +319,7 @@ export default {
             this.jobId = this.jobs[index]._id;
             // console.log('id:'+this.jobId);
 
-            this.buttonString = 'Edit';
+            this.editButtonDisabled = false;
             this.setFocus("first");
         },
 
