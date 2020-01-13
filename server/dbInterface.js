@@ -18,12 +18,12 @@ const userSchema = {
     name: String,
     password: String,
     group: Number,
-    history: {
-        customer: Array,
-        project: Array,
-        function: Array,
-        jobDescrition: Array,
-    },
+    // history: {
+    //     customer: Array,
+    //     project: Array,
+    //     feature: Array,
+    //     jobDescrition: Array,
+    // },
 }
 
 const featureSchema = {

@@ -284,6 +284,25 @@ router.put('/users', async (req, res) => {
     }
     res.end();
 });
+// router.put('/userhistory', async (req, res) => {
+//     // console.log('PUT userhistory');
+//     const user = await db.findUser(req.body.name);
+
+//     console.log(Object.keys(user.history));
+//     console.log(Object.getOwnPropertyNames(user.history));
+
+//     // Object.keys(user.history).map(function(key, index){
+//         // console.log(key)
+//     //     user.history[key].push(req.body.history[key]);
+//     // });
+
+//     // const result = await db.updateUser(user);
+
+//     // if (result !== true) {
+//     //     res.status(500).send({ error: 'create/update user Failed!' });
+//     // }
+//     res.end();
+// });
 router.get('/users', async (req, res) => {
     // console.log('GET users');
     const users = await db.findUser('');

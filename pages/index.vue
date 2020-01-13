@@ -62,6 +62,7 @@ import io from 'socket.io-client';
 import { ToggleButton } from 'vue-js-toggle-button';
 import { BButton, BModal, BTabs } from 'bootstrap-vue';
 import moment from 'moment';
+import lang from 'lodash/lang';
 //const socket = io('http://127.0.0.1:3001');
 const socket = io('http://hityang.noip.me:3001');
 const priviledge = {'normal': 1,
@@ -234,9 +235,11 @@ export default {
 
         currentUser: function() {
             if(this.$auth.loggedIn) {
-                return { name: this.$auth.user.name,
-                         group: this.$auth.user.group
-                         };
+                return  {
+                            name: this.$auth.user.name,
+                            group: this.$auth.user.group,
+                            // history: lang.cloneDeep(this.$auth.user.history),
+                        };
             }
             else {
                 return {name:"Anonymous", group: this.PRIVILEDGE_NORMAL};
