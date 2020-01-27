@@ -72,25 +72,7 @@ const priviledge = {'normal': 1,
 let bus=new Vue();
 
 socket.on('data_sync', function(msg){
-    if(msg === 'users') {
-        bus.$emit('triggerUser', msg);
-    }
-    
-    if(msg === 'customers') {
-        bus.$emit('triggerCustomer', msg);
-    }
-
-    if(msg === 'projects') {
-        bus.$emit('triggerProject', msg);
-    }
-
-    if(msg === 'features') {
-        bus.$emit('triggerFeature', msg);
-    }
-
-    if(msg === 'offdays') {
-        bus.$emit('triggerOffday', msg);
-    }
+    bus.$emit('triggerUpdate', msg);
 });
 
 export default {
@@ -112,55 +94,58 @@ export default {
         res = await self.getUsers();
         self.users = res.slice();
 
-        bus.$on('triggerUser', async function(content){
-            let result = await self.getUsers();
-            // console.log('result: '+result);
-            self.users = result.slice();
-        });
-
         res = await self.getCustomers();
         self.customers = res.slice();
-
-        bus.$on('triggerCustomer', async function(content){
-            let result = await self.getCustomers();
-            // console.log('result: '+result);
-            self.customers = result.slice();
-        });
 
         res = await self.getProjects();
         self.projects = res.slice();
         
-        bus.$on('triggerProject', async function(content){
-            let result = await self.getProjects();
-            // console.log('result: '+result);
-            self.projects = result.slice();
-        });
-
         res = await self.getFeatures();
         self.features = res.slice();
-
-        bus.$on('triggerFeature', async function(content){
-            let result = await self.getFeatures();
-            // console.log('result: '+result);
-            self.features = result.slice();
-        });
 
         res = await self.getOffdays();
         self.offdays = res.slice().map(e => {return new Date(e.date)});
 
-        bus.$on('triggerOffday', async function(content){
-            let result = await self.getOffdays();
-            // console.log('result: '+result);
-            self.offdays = result.slice().map(e => {return new Date(e.date)});
+        bus.$on('triggerUpdate', async function(content){
+            if(content === 'users') {
+                let result = await self.getUsers();
+                // console.log('result: '+result);
+                self.users = result.slice();
+                return;
+            }
+            
+            if(content === 'customers') {
+                let result = await self.getCustomers();
+                // console.log('result: '+result);
+                self.customers = result.slice();
+                return;
+            }
+            
+            if(content === 'projects') {
+                let result = await self.getProjects();
+                // console.log('result: '+result);
+                self.projects = result.slice();
+                return;
+            }
+            
+            if(content === 'features') {
+                let result = await self.getFeatures();
+                // console.log('result: '+result);
+                self.features = result.slice();
+                return;
+            }
+            
+            if(content === 'offdays') {
+                let result = await self.getOffdays();
+                // console.log('result: '+result);
+                self.offdays = result.slice().map(e => {return new Date(e.date)});
+                return;
+            }
         });
     },
 
     beforeDestroy: function(){
-        bus.$off('triggerUser', this.reset);
-        bus.$off('triggerCustomer', this.reset);
-        bus.$off('triggerProject', this.reset);
-        bus.$off('triggerFeature', this.reset);
-        bus.$off('triggerOffday', this.reset);
+        bus.$off('triggerUpdate', this.reset);
     },
 
     // props: {
