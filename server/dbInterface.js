@@ -153,7 +153,19 @@ export async function findUser(userName) {
 
 export async function updateUser(user) {
     let result = true;
-    await userCollect.updateOne({ name: user.name }, user, { upsert: true },
+    await userCollect.updateOne({ _id: user._id }, user, { upsert: true },
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
+        });
+    return result;
+}
+
+export async function deleteUser(id) {
+    let result = true;
+    // console.log(id);
+    await userCollect.deleteOne({ _id: id },
         function (err, data) {
             if (err) {
                 result = false;
@@ -181,7 +193,19 @@ export async function createFeature(feature) {
 
 export async function updateFeature(feature) {
     let result = true;
-    await featureCollect.updateOne({ name: feature.name }, feature, { upsert: true },
+    await featureCollect.updateOne({ _id: feature._id }, feature, { upsert: true },
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
+        });
+    return result;
+}
+
+export async function deleteFeature(id) {
+    let result = true;
+    // console.log(id);
+    await featureCollect.deleteOne({ _id: id },
         function (err, data) {
             if (err) {
                 result = false;
@@ -209,8 +233,20 @@ export async function createCustomer(customer) {
 
 export async function updateCustomer(customer) {
     let result = true;
-    await customerCollect.updateOne({ name: customer.name }, customer, { upsert: true },
+    await customerCollect.updateOne({ _id: customer._id }, customer, { upsert: true },
         function (err, data){
+            if (err) {
+                result = false;
+            }
+        });
+    return result;
+}
+
+export async function deleteCustomer(id) {
+    let result = true;
+    // console.log(id);
+    await customerCollect.deleteOne({ _id: id },
+        function (err, data) {
             if (err) {
                 result = false;
             }
@@ -237,7 +273,19 @@ export async function createProject(project) {
 
 export async function updateProject(project) {
     let result = true;
-    await projectCollect.updateOne({ name: project.name }, project, { upsert: true },
+    await projectCollect.updateOne({ _id: project._id }, project, { upsert: true },
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
+        });
+    return result;
+}
+
+export async function deleteProject(id) {
+    let result = true;
+    // console.log(id);
+    await projectCollect.deleteOne({ _id: id },
         function (err, data) {
             if (err) {
                 result = false;

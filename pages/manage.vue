@@ -23,7 +23,19 @@
                     class="new-button"
                     variant="primary"
                     size="sm"
-                    @click="addCustomer">Add/Edit Customer
+                    @click="addCustomer('add')">Add
+                </b-button>
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="addCustomer('edit')">Edit
+                </b-button>
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="delCustomer">Del
                 </b-button>
             </span>
             <span>
@@ -60,7 +72,19 @@
                     class="new-button"
                     variant="primary"
                     size="sm"
-                    @click="addProject">Add/Edit Project
+                    @click="addProject('add')">Add
+                </b-button>
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="addProject('edit')">Edit
+                </b-button>
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="delProject">Del
                 </b-button>
             </span>
             <span>
@@ -114,7 +138,19 @@
                     class="new-button"
                     variant="primary"
                     size="sm"
-                    @click="addFeature">Add Feature
+                    @click="addFeature('add')">Add
+                </b-button>
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="addFeature('edit')">Edit
+                </b-button>
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="delFeature">Del
                 </b-button>
             </span>
             <span>
@@ -144,7 +180,19 @@
                     class="new-button"
                     variant="primary"
                     size="sm"
-                    @click="addUser">Add/Edit User
+                    @click="addUser('add')">Add
+                </b-button>
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="addUser('edit')">Edit
+                </b-button>
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="delUser">Del
                 </b-button>
             </span>
             <span>
@@ -180,11 +228,15 @@ export default {
             selectedCustomerName: '',
             customerInfo: '',
             isInternalCustomer: false,
+            customerId: '',
+
             projectName: '',
             selectedProjectName: '',
             projOtherNames: '',
             projCustomer: '',
             projDescription: '',
+            projectId: '',
+
             featureName: '',
             selectedFeatureName: '',
             featOtherNames: '',
@@ -193,10 +245,13 @@ export default {
             subCategory: '',
             reference: '',
             isInternalFeature: false,
+            featureId: '',
+            
             userName: '',
             selectedUserName: '',
             userPasswd: '',
             userGroup: 1,
+            userId: '',
         };
     },
 
@@ -230,12 +285,30 @@ export default {
             return [{value: null, text: placeholder}, ...optionList];
         },
 
-        async addUser() {
+        async addUser(type) {
+            let id = '';
+            if(type === 'add') {
+                id = '';
+            }
+            else if(type === 'edit') {
+                id = this.userId;
+            }
+
             await this.$axios.put('api/users', {
+                _id: id,
                 name: this.userName,
                 password: this.userPasswd,
                 group: this.userGroup,
             });
+        },
+
+        async delUser() {
+            const index = this.users.findIndex(element => {return element.name === this.selectedUserName})
+            if(index === undefined) {
+                return;
+            }
+            const queryID = '_id=' + this.users[index]._id;
+            await this.$axios.delete('api/users?'+queryID);
         },
 
         selectUser() {
@@ -243,21 +316,40 @@ export default {
                 this.userName = '';
                 this.userPasswd = '';
                 this.userGroup = 1;
+                this.userId = '';
                 return;
             }
-            const self = this;
-            const selected = this.users.find(element => {return element.name === self.selectedUserName});
+            const selected = this.users.find(element => {return element.name === this.selectedUserName});
             this.userName = selected.name;
             this.userPasswd = selected.password;
             this.userGroup = selected.group;
+            this.userId = selected._id;
         },
         
-        async addCustomer() {
+        async addCustomer(type) {
+            let id = '';
+            if(type === 'add') {
+                id = '';
+            }
+            else if(type === 'edit') {
+                id = this.customerId;
+            }
+
             await this.$axios.put('api/customers', {
+                _id: id,
                 customerName: this.customerName,
                 customerInfo: this.customerInfo,
                 isInternal: this.isInternalCustomer,
             });
+        },
+
+        async delCustomer() {
+            const index = this.customers.findIndex(element => {return element.name === this.selectedCustomerName})
+            if(index === undefined) {
+                return;
+            }
+            const queryID = '_id=' + this.customers[index]._id;
+            await this.$axios.delete('api/customers?'+queryID);
         },
 
         selectCustomer() {
@@ -265,17 +357,27 @@ export default {
                 this.customerName = '';
                 this.customerInfo = '';
                 this.isInternalCustomer = false;
+                this.customerId = '';
                 return;
             }
-            const self = this;
-            const selected = this.customers.find(element => {return element.name === self.selectedCustomerName});
+            const selected = this.customers.find(element => {return element.name === this.selectedCustomerName});
             this.customerName = selected.name;
             this.customerInfo = selected.info;
             this.isInternalCustomer = selected.isInternal;
+            this.customerId = selected._id;
         },
 
-        async addProject() {
+        async addProject(type) {
+            let id = '';
+            if(type === 'add') {
+                id = '';
+            }
+            else if(type === 'edit') {
+                id = this.projectId;
+            }
+
             await this.$axios.put('api/projects', {
+                _id: id,
                 projectName: this.projectName,
                 otherNames: this.projOtherNames.split(','),
                 customer: this.projCustomer,
@@ -283,24 +385,43 @@ export default {
             });
         },
 
+        async delProject() {
+            const index = this.projects.findIndex(element => {return element.name === this.selectedProjectName})
+            if(index === undefined) {
+                return;
+            }
+            const queryID = '_id=' + this.projects[index]._id;
+            await this.$axios.delete('api/projects?'+queryID);
+        },
+
         selectProject() {
             if(this.selectedProjectName === null) {
                 this.projectName = '';
                 this.projOtherNames = '';
                 this.projCustomer = this.firstCustomer;
-                this.projDescription = ''
+                this.projDescription = '';
+                this.projectId = '';
                 return;
             }
-            const self = this;
-            const selected = this.projects.find(element => {return element.name === self.selectedProjectName});
+            const selected = this.projects.find(element => {return element.name === this.selectedProjectName});
             this.projectName = selected.name;
             this.projOtherNames = selected.otherNames.toString();
             this.projCustomer = selected.customer;
             this.projDescription = selected.description;
+            this.projectId = selected._id;
         },
         
-        async addFeature() {
+        async addFeature(type) {
+            let id = '';
+            if(type === 'add') {
+                id = '';
+            }
+            else if(type === 'edit') {
+                id = this.projectId;
+            }
+
             await this.$axios.put('api/features', {
+                _id: id,
                 featureName: this.featureName,
                 otherNames: this.featOtherNames.split(','),
                 description: this.featDescription,
@@ -309,6 +430,15 @@ export default {
                 reference: this.reference,
                 isInternal: this.isInternalFeature,
             });
+        },
+
+        async delFeature() {
+            const index = this.features.findIndex(element => {return element.name === this.selectedFeatureName})
+            if(index === undefined) {
+                return;
+            }
+            const queryID = '_id=' + this.features[index]._id;
+            await this.$axios.delete('api/features?'+queryID);
         },
 
         selectFeature() {
@@ -320,10 +450,10 @@ export default {
                 this.subCategory = '';
                 this.reference = '';
                 this.isInternalFeature = false;
+                this.featureId ='';
                 return;
             }
-            const self = this;
-            const selected = this.features.find(element => {return element.name === self.selectedFeatureName});
+            const selected = this.features.find(element => {return element.name === this.selectedFeatureName});
             this.featureName = selected.name;
             this.featOtherNames = selected.otherNames.toString();
             this.featDescription = selected.description;
@@ -331,6 +461,7 @@ export default {
             this.subCategory = selected.subCategory;
             this.reference = selected.reference;
             this.isInternalFeature = selected.isInternal;
+            this.featureId = selected._id;
         },
     }
 }

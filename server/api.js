@@ -8,7 +8,9 @@ const jsonwebtoken = require('jsonwebtoken')
 // /features/search?
 router.put('/features', async (req, res) => {
     // console.log('PUT feature : ' + req.body.featureName);
-    const result = await db.updateFeature({
+
+    let result;
+    let data = {
         name: req.body.featureName,
         otherNames: req.body.otherNames,
         description: req.body.description,
@@ -16,7 +18,15 @@ router.put('/features', async (req, res) => {
         subCategory: req.body.subCategory,
         reference: req.body.reference,
         isInternal: req.body.isInternal,
-    });
+    };
+
+    if(req.body._id === '') {
+        result = await db.createFeature(data);
+    }
+    else {
+        data._id = req.body._id;
+        result = await db.updateFeature(data);
+    }
 
     if (result !== true) {
         res.status(500).send({ error: 'create/update feature Failed!' });
@@ -30,47 +40,70 @@ router.get('/features', async (req, res) => {
     res.send({ features });
     res.end();
 });
+router.delete('/features', async (req, res) => {
+    // console.log('Del feature : ' + req.query_id);
+    const result = await db.deleteFeature(req.query._id);
+    // console.log(result);
+    res.end();
+});
 
 // /customers
 // /customers?fields=xxx,yyy,zzz
 router.put('/customers', async (req, res) => {
     // console.log('PUT customer : '+ req.body.customerName);
-    const result = await db.updateCustomer({
+
+    let result;
+    let data = {
         name: req.body.customerName,
         info: req.body.customerInfo,
         isInternal: req.body.isInternal,
-    });
+    };
+
+    if(req.body._id === '') {
+        data.project = [];
+        result = await db.createCustomer(data);
+    }
+    else {
+        data._id = req.body._id;
+        result = await db.updateCustomer(data);
+    }
 
     if (result !== true) {
         res.status(500).send({ error: 'create/update customer Failed!' });
     }
     res.end();
 });
-router.post('/customers', async (req, res) => {
-    // console.log('POST customer : '+ req.body.customerName);
-    const customer = await db.findCustomer(req.body.customerName);
-    // console.log(customer);
-    if(customer === null) {
-        const result = await db.createCustomer({
-            name: req.body.customerName,
-            info: req.body.customerInfo,
-            isInternal: req.body.isInternal,
-        });
+// router.post('/customers', async (req, res) => {
+//     // console.log('POST customer : '+ req.body.customerName);
+//     const customer = await db.findCustomer(req.body.customerName);
+//     // console.log(customer);
+//     if(customer === null) {
+//         const result = await db.createCustomer({
+//             name: req.body.customerName,
+//             info: req.body.customerInfo,
+//             isInternal: req.body.isInternal,
+//         });
 
-        if(result !== true) {
-            res.status(500).send({error: 'create customer Failed!'});
-        }
-    }
-    else {
-        res.status(500).send({error: 'create customer duplicated!'});
-    }
-    res.end();
-});
+//         if(result !== true) {
+//             res.status(500).send({error: 'create customer Failed!'});
+//         }
+//     }
+//     else {
+//         res.status(500).send({error: 'create customer duplicated!'});
+//     }
+//     res.end();
+// });
 router.get('/customers', async (req, res) => {
     // console.log('GET customer');
     const customers = await db.findCustomer('');
     // console.log(customers);
     res.send({ customers });
+    res.end();
+});
+router.delete('/customers', async (req, res) => {
+    // console.log('Del customer : ' + req.query_id);
+    const result = await db.deleteCustomer(req.query._id);
+    // console.log(result);
     res.end();
 });
 
@@ -101,13 +134,22 @@ router.put('/projects', async (req, res) => {
         }
     }
 
-    let result = await db.updateProject({
+    let result;
+    let data = {
         name: req.body.projectName,
         otherNames: req.body.otherNames,
         // customer: { a: customer._id, b: customer.name },
         customer: customer.name,
         description: req.body.description,
-    });
+    };
+
+    if(req.body._id === '') {
+        result = await db.createProject(data);
+    }
+    else {
+        data._id = req.body._id;
+        result = await db.updateProject(data);
+    }
 
     if (result !== true) {
         res.status(500).send({ error: 'create/update project Failed!' });
@@ -115,8 +157,20 @@ router.put('/projects', async (req, res) => {
         return;
     }
 
-    // const project = await db.findProject(req.body.projectName);
-    // console.log('project: ' + project);
+    if(req.body._id !== '') {
+        const project = projects.find(element => {return element.name === req.body.projectName});
+        if(project.customer !== req.body.customer) {
+            let oldCustomer = await db.findCustomer(project.customer);
+            oldCustomer.projects.splice(oldCustomer.projects.indexOf(req.body.projectName), 1);
+            result = await db.updateCustomer(oldCustomer);
+
+            if (result !== true) {
+                res.status(500).send({ error: 'create/update old customer Failed!' });
+                res.end();
+                return;
+            }
+        }
+    }
     customer.projects.push(req.body.projectName);
     result = await db.updateCustomer(customer);
 
@@ -152,6 +206,12 @@ router.get('/projects', async (req, res) => {
     const projects = await db.findProject('');
     // console.log(projects);
     res.send({ projects });
+    res.end();
+});
+router.delete('/projects', async (req, res) => {
+    // console.log('Del project : ' + req.query_id);
+    const result = await db.deleteProject(req.query._id);
+    // console.log(result);
     res.end();
 });
 
@@ -203,9 +263,8 @@ router.get('/jobs', async (req, res) => {
 });
 router.delete('/jobs', async (req, res) => {
     // console.log('Del job : ' + req.query_id);
-    const jobs = await db.deleteJob(req.query._id);
-    // console.log(jobs);
-    res.send({ jobs });
+    const result = await db.deleteJob(req.query._id);
+    // console.log(result);
     res.end();
 });
 
@@ -273,11 +332,27 @@ router.post('/register', async (req, res, next) => {
 });
 router.put('/users', async (req, res) => {
     // console.log('PUT users');
-    const result = await db.updateUser({
+
+    let result;
+    let data = {
         name: req.body.name,
         password: req.body.password,
         group: req.body.group,
-    });
+    };
+
+    if(req.body._id === '') {
+        result = await db.createUser(data);
+    }
+    else {
+        data._id = req.body._id;
+        result = await db.updateUser(data);
+    }
+
+    // const result = await db.updateUser({
+    //     name: req.body.name,
+    //     password: req.body.password,
+    //     group: req.body.group,
+    // });
 
     if (result !== true) {
         res.status(500).send({ error: 'create/update user Failed!' });
@@ -308,6 +383,12 @@ router.get('/users', async (req, res) => {
     const users = await db.findUser('');
     // console.log(users);
     res.send({ users });
+    res.end();
+});
+router.delete('/users', async (req, res) => {
+    // console.log('Del user : ' + req.query_id);
+    const result = await db.deleteUser(req.query._id);
+    // console.log(result);
     res.end();
 });
 
