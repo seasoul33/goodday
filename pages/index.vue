@@ -10,10 +10,10 @@
 
         <b-tabs content-class="mt-3">
             <b-tab title="Job Diary" active>
-                <jobInput :currentUser="currentUser" :customers="customers" :projects="projects" :features="features" :today="today" :holiday="holiday" :offday="offdays" />
+                <jobInput :currentUser="currentUser" :customers="customers" :projects="projects" :tasktypes="tasktypes" :features="features" :today="today" :holiday="holiday" :offday="offdays" />
             </b-tab>
             <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Manage">
-                <manage :users="users" :currentUser="currentUser" :customers="customers" :projects="projects" :features="features" />
+                <manage :users="users" :currentUser="currentUser" :customers="customers" :projects="projects" :tasktypes="tasktypes" :features="features" />
             </b-tab>
             <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Holiday Manage">
                 <holidayManage :today="today" :holiday="holiday" :offday="offdays" />
@@ -99,6 +99,9 @@ export default {
 
         res = await self.getProjects();
         self.projects = res.slice();
+
+        res = await self.getTasktypes();
+        self.tasktypes = res.slice();
         
         res = await self.getFeatures();
         self.features = res.slice();
@@ -125,6 +128,13 @@ export default {
                 let result = await self.getProjects();
                 // console.log('result: '+result);
                 self.projects = result.slice();
+                return;
+            }
+
+            if(content === 'tasktypes') {
+                let result = await self.getTasktypes();
+                // console.log('result: '+result);
+                self.tasktypes = result.slice();
                 return;
             }
             
@@ -160,6 +170,7 @@ export default {
             users: [],
             customers: [],
             projects: [],
+            tasktypes: [],
             features: [],
             offdays: [],
             today: {
@@ -296,6 +307,13 @@ export default {
             let result;
             await this.$axios.get('api/projects')
                 .then( res => {result = res.data.projects.slice()});
+            return result;
+        },
+
+        async getTasktypes() {
+            let result;
+            await this.$axios.get('api/tasktypes')
+                .then( res => {result = res.data.tasktypes.slice()});
             return result;
         },
         

@@ -6,6 +6,7 @@ let socket_io;
 let userCollect = null;
 let customerCollect = null;
 let projectCollect = null;
+let tasktypeCollect = null;
 let featureCollect = null;
 let jobCollect = null;
 let offdayCollect = null;
@@ -57,9 +58,15 @@ const projectSchema = {
     //      event + action items + milestones
 }
 
+const tasktypeSchema = {
+    name: String,
+    description: String,
+}
+
 const jobSchema = {
     customer: String, //{ ObjectId, String },
     project: String, //{ ObjectId, String },
+    tasktype: String,
     feature: String, //{ ObjectId, String },
     effort: Number,
     content: String,
@@ -100,6 +107,7 @@ export function init(IPPort, callback) {
             userCollect = mongoose.model('users', new mongoose.Schema(userSchema));
             customerCollect = mongoose.model('customers', new mongoose.Schema(customerSchema));
             projectCollect = mongoose.model('projects', new mongoose.Schema(projectSchema));
+            tasktypeCollect = mongoose.model('tasktypes', new mongoose.Schema(tasktypeSchema));
             featureCollect = mongoose.model('features', new mongoose.Schema(featureSchema));
             jobCollect = mongoose.model('jobs', new mongoose.Schema(jobSchema));
             offdayCollect = mongoose.model('offdays', new mongoose.Schema(offdaySchema));
@@ -114,6 +122,10 @@ export function init(IPPort, callback) {
 
             projectCollect.watch().on('change', function () {
                 changeCallback('projects');
+            });
+
+            tasktypeCollect.watch().on('change', function () {
+                changeCallback('tasktypes');
             });
 
             featureCollect.watch().on('change', function () {
@@ -166,46 +178,6 @@ export async function deleteUser(id) {
     let result = true;
     // console.log(id);
     await userCollect.deleteOne({ _id: id },
-        function (err, data) {
-            if (err) {
-                result = false;
-            }
-        });
-    return result;
-}
-
-export async function findFeature(featureName) {
-    if (featureName === '') {
-        return await featureCollect.find({}).sort({ name: 1 }).slice();
-    }
-    return await featureCollect.findOne({ name: featureName }).exec();
-}
-
-export async function createFeature(feature) {
-    let result = true;
-    await featureCollect.insertMany(feature, function (err, data) {
-        if (err) {
-            result = false;
-        }
-    });
-    return result;
-}
-
-export async function updateFeature(feature) {
-    let result = true;
-    await featureCollect.updateOne({ _id: feature._id }, feature, { upsert: true },
-        function (err, data) {
-            if (err) {
-                result = false;
-            }
-        });
-    return result;
-}
-
-export async function deleteFeature(id) {
-    let result = true;
-    // console.log(id);
-    await featureCollect.deleteOne({ _id: id },
         function (err, data) {
             if (err) {
                 result = false;
@@ -286,6 +258,86 @@ export async function deleteProject(id) {
     let result = true;
     // console.log(id);
     await projectCollect.deleteOne({ _id: id },
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
+        });
+    return result;
+}
+
+export async function findTasktype(tasktypeName) {
+    if (tasktypeName === '') {
+        return await tasktypeCollect.find({}).sort({ name: 1 }).slice();
+    }
+    return await tasktypeCollect.findOne({ name: tasktypeName }).exec();
+}
+
+export async function createTasktype(tasktype) {
+    let result = true;
+    await tasktypeCollect.insertMany(tasktype, function (err, data) {
+        if (err) {
+            result = false;
+        }
+    });
+    return result;
+}
+
+export async function updateTasktype(tasktype) {
+    let result = true;
+    await tasktypeCollect.updateOne({ _id: tasktype._id }, tasktype, { upsert: true },
+        function (err, data){
+            if (err) {
+                result = false;
+            }
+        });
+    return result;
+}
+
+export async function deleteTasktype(id) {
+    let result = true;
+    // console.log(id);
+    await tasktypeCollect.deleteOne({ _id: id },
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
+        });
+    return result;
+}
+
+export async function findFeature(featureName) {
+    if (featureName === '') {
+        return await featureCollect.find({}).sort({ name: 1 }).slice();
+    }
+    return await featureCollect.findOne({ name: featureName }).exec();
+}
+
+export async function createFeature(feature) {
+    let result = true;
+    await featureCollect.insertMany(feature, function (err, data) {
+        if (err) {
+            result = false;
+        }
+    });
+    return result;
+}
+
+export async function updateFeature(feature) {
+    let result = true;
+    await featureCollect.updateOne({ _id: feature._id }, feature, { upsert: true },
+        function (err, data) {
+            if (err) {
+                result = false;
+            }
+        });
+    return result;
+}
+
+export async function deleteFeature(id) {
+    let result = true;
+    // console.log(id);
+    await featureCollect.deleteOne({ _id: id },
         function (err, data) {
             if (err) {
                 result = false;

@@ -34,6 +34,16 @@
             </span>
 
             <span class="container-input">
+                Task Type:
+                <autoSuggest
+                    ref="tasktype"
+                    :sourceData="taskTypeList"
+                    v-model="tasktypeName"
+                    holder="task type..."
+                />
+            </span>
+
+            <span class="container-input">
                 Feature/Function:
                 <autoSuggest
                     ref="function"
@@ -137,6 +147,7 @@ export default {
         currentUser: Object,
         customers: Array,
         projects: Array,
+        tasktypes: Array,
         features: Array,
         today: Object,
         holiday: Object,
@@ -165,6 +176,7 @@ export default {
             jobs: [],
             customerName: '',
             projectName: '',
+            tasktypeName: '',
             featureName: '',
             workHour: 0,
             jobDescription: '',
@@ -173,6 +185,7 @@ export default {
             fields:[
                 'customer',
                 'project',
+                'tasktype',
                 'feature',
                 'effort',
                 'content',
@@ -215,6 +228,12 @@ export default {
             }, []);
         },
 
+        taskTypeList: function(){
+            return this.tasktypes.map(function(element){
+                return element.name;
+            });
+        },
+
         featureNameList: function(){
             return this.features.map(function(element){
                 return element.name;
@@ -249,6 +268,7 @@ export default {
         clearJob (){
             this.customerName = '';
             this.projectName = '';
+            this.tasktypeName = '';
             this.featureName = '';
             this.workHour = 0;
             this.jobDescription = '';
@@ -278,6 +298,7 @@ export default {
                 _id: id,
                 customer: this.customerName,
                 project: this.projectName,
+                tasktype: this.tasktypeName,
                 feature: this.featureName,
                 effort: this.workHour,
                 content: this.jobDescription,
@@ -313,6 +334,7 @@ export default {
         selectJob(item, index) {
             this.customerName = item.customer;
             this.projectName = item.project;
+            this.tasktypeName = item.tasktype;
             this.featureName = item.feature;
             this.workHour = item.effort;
             this.jobDescription = item.content;

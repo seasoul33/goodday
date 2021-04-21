@@ -4,49 +4,6 @@ const db = require('./dbInterface.js')
 const jwt = require('express-jwt')
 const jsonwebtoken = require('jsonwebtoken')
 
-// /features/
-// /features/search?
-router.put('/features', async (req, res) => {
-    // console.log('PUT feature : ' + req.body.featureName);
-
-    let result;
-    let data = {
-        name: req.body.featureName,
-        otherNames: req.body.otherNames,
-        description: req.body.description,
-        mainCategory: req.body.mainCategory,
-        subCategory: req.body.subCategory,
-        reference: req.body.reference,
-        isInternal: req.body.isInternal,
-    };
-
-    if(req.body._id === '') {
-        result = await db.createFeature(data);
-    }
-    else {
-        data._id = req.body._id;
-        result = await db.updateFeature(data);
-    }
-
-    if (result !== true) {
-        res.status(500).send({ error: 'create/update feature Failed!' });
-    }
-    res.end();
-});
-router.get('/features', async (req, res) => {
-    // console.log('GET feature');
-    const features = await db.findFeature('');
-    // console.log(features);
-    res.send({ features });
-    res.end();
-});
-router.delete('/features', async (req, res) => {
-    // console.log('Del feature : ' + req.query_id);
-    const result = await db.deleteFeature(req.query._id);
-    // console.log(result);
-    res.end();
-});
-
 // /customers
 // /customers?fields=xxx,yyy,zzz
 router.put('/customers', async (req, res) => {
@@ -215,6 +172,86 @@ router.delete('/projects', async (req, res) => {
     res.end();
 });
 
+// /tasktypes
+// /tasktypes/search?
+router.put('/tasktypes', async (req, res) => {
+    // console.log('PUT task type : '+ req.body.tasktypeName);
+
+    let result;
+    let data = {
+        name: req.body.tasktypeName,
+        description: req.body.description,
+    };
+
+    if(req.body._id === '') {
+        result = await db.createTasktype(data);
+    }
+    else {
+        data._id = req.body._id;
+        result = await db.updateTasktype(data);
+    }
+
+    if (result !== true) {
+        res.status(500).send({ error: 'create/update task type Failed!' });
+    }
+    res.end();
+});
+router.get('/tasktypes', async (req, res) => {
+    // console.log('GET task type');
+    const tasktypes = await db.findTasktype('');
+    // console.log(tasktypes);
+    res.send({ tasktypes });
+    res.end();
+});
+router.delete('/tasktypes', async (req, res) => {
+    // console.log('Del task type : ' + req.query_id);
+    const result = await db.deleteTasktype(req.query._id);
+    // console.log(result);
+    res.end();
+});
+
+// /features/
+// /features/search?
+router.put('/features', async (req, res) => {
+    // console.log('PUT feature : ' + req.body.featureName);
+
+    let result;
+    let data = {
+        name: req.body.featureName,
+        otherNames: req.body.otherNames,
+        description: req.body.description,
+        mainCategory: req.body.mainCategory,
+        subCategory: req.body.subCategory,
+        reference: req.body.reference,
+        isInternal: req.body.isInternal,
+    };
+
+    if(req.body._id === '') {
+        result = await db.createFeature(data);
+    }
+    else {
+        data._id = req.body._id;
+        result = await db.updateFeature(data);
+    }
+
+    if (result !== true) {
+        res.status(500).send({ error: 'create/update feature Failed!' });
+    }
+    res.end();
+});
+router.get('/features', async (req, res) => {
+    // console.log('GET feature');
+    const features = await db.findFeature('');
+    // console.log(features);
+    res.send({ features });
+    res.end();
+});
+router.delete('/features', async (req, res) => {
+    // console.log('Del feature : ' + req.query_id);
+    const result = await db.deleteFeature(req.query._id);
+    // console.log(result);
+    res.end();
+});
 
 // /jobs
 // /jobs/search?
@@ -232,6 +269,7 @@ router.put('/jobs', async (req, res) => {
     let data = {
         customer: req.body.customer,
         project: projectName,
+        tasktype: req.body.tasktype,
         feature: req.body.feature,
         effort: req.body.effort,
         content: req.body.content,

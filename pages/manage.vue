@@ -93,6 +93,43 @@
         </div>
         <div class="area">
             <span>
+                Task Type:
+                <input
+                    v-model="tasktypeName"
+                    type="text"
+                    placeholder="Task Type..."
+                /><br />
+                Task Type Info:
+                <input
+                    v-model="tasktypeDescription"
+                    type="text"
+                    placeholder="Task Type Information..."
+                /><br />
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="addTasktype('add')">Add
+                </b-button>
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="addTasktype('edit')">Edit
+                </b-button>
+                <b-button
+                    class="new-button"
+                    variant="primary"
+                    size="sm"
+                    @click="delTasktype">Del
+                </b-button>
+            </span>
+            <span>
+                <b-form-select v-model="selectedTasktypeName" :options="tasktypeList" :select-size="5" @input="selectTasktype"></b-form-select>
+            </span>
+        </div>
+        <div class="area">
+            <span>
                 Feature Name:
                 <input
                     v-model="featureName"
@@ -214,6 +251,7 @@ export default {
         currentUser: Object,
         customers: Array,
         projects: Array,
+        tasktypes: Array,
         features: Array,
         users: Array,
     },
@@ -236,6 +274,11 @@ export default {
             projCustomer: '',
             projDescription: '',
             projectId: '',
+
+            tasktypeName: '',
+            selectedTasktypeName: '',
+            tasktypeDescription: '',
+            tasktypeId: '',
 
             featureName: '',
             selectedFeatureName: '',
@@ -266,6 +309,10 @@ export default {
         
         projectList: function() {
             return this.buildList(this.projects, 'Edit a project...?');
+        },
+
+        tasktypeList: function() {
+            return this.buildList(this.tasktypes, 'Edit a task type...?');
         },
 
         firstCustomer: function() {
@@ -410,6 +457,44 @@ export default {
             this.projDescription = selected.description;
             this.projectId = selected._id;
         },
+
+        async addTasktype(type) {
+            let id = '';
+            if(type === 'add') {
+                id = '';
+            }
+            else if(type === 'edit') {
+                id = this.tasktypeId;
+            }
+
+            await this.$axios.put('api/tasktypes', {
+                _id: id,
+                tasktypeName: this.tasktypeName,
+                description: this.tasktypeDescription,
+            });
+        },
+
+        async delTasktype() {
+            const index = this.tasktypes.findIndex(element => {return element.name === this.selectedTasktypeName})
+            if(index === undefined) {
+                return;
+            }
+            const queryID = '_id=' + this.tasktypes[index]._id;
+            await this.$axios.delete('api/tasktypes?'+queryID);
+        },
+
+        selectTasktype() {
+            if(this.selectedTasktypeName === null) {
+                this.tasktypeName = '';
+                this.tasktypeDescription = '';
+                this.tasktypeId = '';
+                return;
+            }
+            const selected = this.tasktypes.find(element => {return element.name === this.selectedTasktypeName});
+            this.tasktypeName = selected.name;
+            this.tasktypeDescription = selected.description;
+            this.tasktypeId = selected._id;
+        },
         
         async addFeature(type) {
             let id = '';
@@ -417,7 +502,7 @@ export default {
                 id = '';
             }
             else if(type === 'edit') {
-                id = this.projectId;
+                id = this.featureId;
             }
 
             await this.$axios.put('api/features', {
