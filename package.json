@@ -1,7 +1,7 @@
 {
-  "name": "playnuxt",
+  "name": "GoodDay",
   "version": "1.0.0",
-  "description": "My world-class Nuxt.js project",
+  "description": "Resource Analyzing System",
   "author": "seasoul33",
   "private": true,
   "scripts": {
