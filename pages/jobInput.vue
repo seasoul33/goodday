@@ -123,8 +123,8 @@ import Vue from 'vue';
 import autoSuggest from '~/components/autoSuggest.vue';
 import { setupCalendar, DatePicker} from 'v-calendar';
 import 'v-calendar/lib/v-calendar.min.css';
-import { BTable } from 'bootstrap-vue';
-import moment from 'moment';
+//import { BTable } from 'bootstrap-vue';
+//import moment from 'moment';
 import lang from 'lodash/lang';
 
 setupCalendar({

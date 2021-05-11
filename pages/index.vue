@@ -60,11 +60,9 @@ import manage from '~/pages/manage.vue';
 import holidayManage from '~/pages/holidayManage.vue';
 import io from 'socket.io-client';
 import { ToggleButton } from 'vue-js-toggle-button';
-import { BButton, BModal, BTabs } from 'bootstrap-vue';
-import moment from 'moment';
-import lang from 'lodash/lang';
-//const socket = io('http://127.0.0.1:3001');
-const socket = io('http://hityang.noip.me:3001');
+//import { BButton, BModal, BTabs } from 'bootstrap-vue';
+//import moment from 'moment';
+//import lang from 'lodash/lang';
 const priviledge = {'normal': 1,
                     'administrator': 2, 
 };

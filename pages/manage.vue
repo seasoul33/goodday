@@ -58,7 +58,7 @@
                 />(split by ,)<br />
                 Under which Customer:
                 <select v-model="projCustomer">
-                    <option v-for="customer in customers" :value="customer.name">
+                    <option v-for="customer in customers" v-bind:key="customer.name" :value="customer.name">
                         {{customer.name}}
                     </option>
                 </select><br />
