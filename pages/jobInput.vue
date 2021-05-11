@@ -328,6 +328,7 @@ export default {
         async getJobs() {
             let result;
             let queryDate = 'date=' + this.selectedDateEPOCH;
+            let queryUser = 'owner=' + this.currentUser.name;
             await this.$axios.get('api/jobs?' + queryDate + '&' + queryUser)
                 .then( res => {result = res.data.jobs.slice()});
             return result;
