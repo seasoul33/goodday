@@ -291,10 +291,8 @@ router.put('/jobs', async (req, res) => {
     res.end();
 });
 router.get('/jobs', async (req, res) => {
-    // console.log('GET job : '+ req.query);
-    // console.log(req.query.date);
-    // console.log(req.query.user);
-    const jobs = await db.findJob({ date: req.query.date, owner: req.query.user});
+    // console.log('GET job : '+ JSON.stringify(req.query));
+    const jobs = await db.findJob(Object.assign({}, req.query));
     // console.log(jobs);
     res.send({ jobs });
     res.end();

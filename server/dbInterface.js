@@ -72,7 +72,7 @@ const jobSchema = {
     content: String,
     owner: String, //{ ObjectId, String }, // username _id + username
     // date: Date,
-    date: String,
+    date: Number,
 }
 
 const offdaySchema = {
@@ -347,6 +347,7 @@ export async function deleteFeature(id) {
 }
 
 export async function findJob(filter) {
+    // console.log("Filter: " + JSON.stringify(filter));
     return await jobCollect.find(filter).sort({ customer: 1 }).slice();
     // return await jobCollect.findOne({ name: projectName }).exec();
 }

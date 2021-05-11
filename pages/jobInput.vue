@@ -240,8 +240,11 @@ export default {
             });
         },
 
-        selectedDateString: function() {
-            return this.selectedSingleDate.toLocaleDateString();
+        selectedDateEPOCH: function() {
+            // console.log(this.selectedSingleDate.toLocaleDateString());
+            // console.log(this.selectedSingleDate.getTime());
+            // return this.selectedSingleDate.toLocaleDateString();
+            return this.selectedSingleDate.getTime();
         },
 
         displayedJobs: function() {
@@ -303,7 +306,7 @@ export default {
                 effort: this.workHour,
                 content: this.jobDescription,
                 owner: this.currentUser.name,
-                date: this.selectedDateString,
+                date: this.selectedDateEPOCH,
             });
 
             // await this.$axios.put('api/userhistory',{
@@ -324,8 +327,7 @@ export default {
 
         async getJobs() {
             let result;
-            let queryDate = 'date=' + this.selectedDateString;
-            let queryUser = 'user=' + this.currentUser.name;
+            let queryDate = 'date=' + this.selectedDateEPOCH;
             await this.$axios.get('api/jobs?' + queryDate + '&' + queryUser)
                 .then( res => {result = res.data.jobs.slice()});
             return result;
