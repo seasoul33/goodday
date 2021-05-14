@@ -348,7 +348,28 @@ export async function deleteFeature(id) {
 
 export async function findJob(filter) {
     // console.log("Filter: " + JSON.stringify(filter));
-    return await jobCollect.find(filter).sort({ customer: 1 }).slice();
+    if(filter.owner !== undefined) {
+        return await jobCollect.find(filter).sort({ customer: 1 }).slice();
+    }
+    else {
+        let resultFilter = {};
+        if(filter.c !== undefined) {
+            resultFilter.customer = { $in: filter.c.split(',') };
+        }
+        if(filter.p !== undefined) {
+            resultFilter.project = { $in: filter.p.split(',') };
+        }
+        if(filter.t !== undefined) {
+            resultFilter.tasktype = { $in: filter.t.split(',') };
+        }
+        if(filter.f !== undefined) {
+            resultFilter.feature = { $in: filter.f.split(',') };
+        }
+        resultFilter.date = { $gte: filter.from, $lte: filter.to}
+        // console.log("resultFilter: " + JSON.stringify(resultFilter));
+        
+        return await jobCollect.find(resultFilter).sort({ customer: 1 }).slice();
+    }
     // return await jobCollect.findOne({ name: projectName }).exec();
 }
 

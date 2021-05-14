@@ -363,7 +363,6 @@ export default {
 
 <style>
 body {
-    /*font-family: sans-serif;*/
     font-family: 'Microsoft JhengHei','Heiti TC','WenQuanYi Zen Hei', Helvetica;
     background-color: #315481;
     background-image: linear-gradient(to bottom, #315481, #918e82 100%);
@@ -385,7 +384,7 @@ body {
 
 
 .container {
-    max-width: 800px;
+    max-width: 1000px;
     min-height: 100%;
     background: transparent;
 }

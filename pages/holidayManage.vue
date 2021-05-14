@@ -76,58 +76,7 @@ export default {
 </script>
 
 <style>
-body {
-    /*font-family: sans-serif;*/
-    font-family: 'Microsoft JhengHei','Heiti TC','WenQuanYi Zen Hei', Helvetica;
-    background-color: #315481;
-    background-image: linear-gradient(to bottom, #315481, #918e82 100%);
-    background-attachment: fixed;
-   
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-   
-    padding: 0;
-    padding-top: 3%;
-    margin: 0;
-   
-    font-size: 14px;
-    word-break: break-all;
-}
 
 
-.container {
-    max-width: 800px;
-    min-height: 100%;
-    background: transparent;
-}
-
-
-.container-calendar {
-    width: 100%;
-    min-height: 100%;
-    margin-bottom: 1em;
-    /* float:right; */
-}
-
-.container-input {
-    float: left;
-}
-
-.container-text {
-    float: left;
-    width: 410px;
-    height: 68px;
-}
-
-.container-button {
-    padding-top: 8%;
-}
-
-.container-effort {
-    width: 60px;
-}
 
 </style>

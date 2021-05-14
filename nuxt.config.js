@@ -1,7 +1,8 @@
 const pkg = require('./package')
 
 module.exports = {
-  mode: 'spa',
+    ssr: false,
+    telemetry: false,
 
   /*
    ** Headers of the page
@@ -48,7 +49,7 @@ module.exports = {
   },
 
   proxy: {
-    '/api/': { target: 'https://hityang.noip.me/', pathRewrite: { '^/api/': '' } }
+    //'/api/': { target: 'https://hityang.noip.me/', pathRewrite: { '^/api/': '' } }
   },
 
   auth: {

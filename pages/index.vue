@@ -10,13 +10,38 @@
 
         <b-tabs content-class="mt-3">
             <b-tab title="Job Diary" active>
-                <jobInput :currentUser="currentUser" :customers="customers" :projects="projects" :tasktypes="tasktypes" :features="features" :today="today" :holiday="holiday" :offday="offdays" />
+                <jobInput
+                    :currentUser="currentUser"
+                    :customers="customers"
+                    :projects="projects"
+                    :tasktypes="tasktypes"
+                    :features="features"
+                    :today="today"
+                    :holiday="holiday"
+                    :offday="offdays" />
             </b-tab>
             <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Manage">
-                <manage :users="users" :currentUser="currentUser" :customers="customers" :projects="projects" :tasktypes="tasktypes" :features="features" />
+                <manage
+                    :users="users"
+                    :currentUser="currentUser"
+                    :customers="customers"
+                    :projects="projects"
+                    :tasktypes="tasktypes"
+                    :features="features" />
             </b-tab>
             <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Holiday Manage">
-                <holidayManage :today="today" :holiday="holiday" :offday="offdays" />
+                <holidayManage
+                    :today="today"
+                    :holiday="holiday"
+                    :offday="offdays" />
+            </b-tab>
+            <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Data Analyze">
+                <dataAnalyze
+                    :currentUser="currentUser"
+                    :customer="customers"
+                    :project="projects"
+                    :tasktype="tasktypes"
+                    :feature="features" />
             </b-tab>
         </b-tabs>
 
@@ -58,11 +83,14 @@ import Vue from 'vue';
 import jobInput from '~/pages/jobInput.vue';
 import manage from '~/pages/manage.vue';
 import holidayManage from '~/pages/holidayManage.vue';
+import dataAnalyze from '~/pages/dataAnalyze.vue';
 import io from 'socket.io-client';
 import { ToggleButton } from 'vue-js-toggle-button';
 //import { BButton, BModal, BTabs } from 'bootstrap-vue';
 //import moment from 'moment';
 //import lang from 'lodash/lang';
+const socket = io('http://127.0.0.1:3001');
+//const socket = io('http://hityang.noip.me:3001');
 const priviledge = {'normal': 1,
                     'administrator': 2, 
 };
@@ -78,6 +106,7 @@ export default {
         jobInput,
         manage,
         holidayManage,
+        dataAnalyze,
         ToggleButton,
     },
         
