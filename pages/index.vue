@@ -20,6 +20,15 @@
                     :holiday="holiday"
                     :offday="offdays" />
             </b-tab>
+            <b-tab title="Data Analyze">
+                <dataAnalyze
+                    :currentUser="currentUser"
+                    :owner="users"
+                    :customer="customers"
+                    :project="projects"
+                    :tasktype="tasktypes"
+                    :feature="features" />
+            </b-tab>
             <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Manage">
                 <manage
                     :users="users"
@@ -34,14 +43,6 @@
                     :today="today"
                     :holiday="holiday"
                     :offday="offdays" />
-            </b-tab>
-            <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Data Analyze">
-                <dataAnalyze
-                    :currentUser="currentUser"
-                    :customer="customers"
-                    :project="projects"
-                    :tasktype="tasktypes"
-                    :feature="features" />
             </b-tab>
         </b-tabs>
 

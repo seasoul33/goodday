@@ -103,7 +103,7 @@
                 hover
                 small
                 fixed
-                :fields="fields"
+                :fields="heads"
                 :items="displayedData" >
             </b-table>
         </div>
@@ -121,6 +121,7 @@ export default {
         
     props: {
         currentUser: Object,
+        owner: Array,
         customer: Array,
         project: Array,
         tasktype: Array,
@@ -134,7 +135,8 @@ export default {
                 { value: 'customer', text: 'Categoried by customer', disabled: true },
                 { value: 'project', text: 'Categoried by project' },
                 { value: 'tasktype', text: 'Categoried by tasktype' },
-                { value: 'feature', text: 'Categoried by feature' }
+                { value: 'feature', text: 'Categoried by feature' },
+                { value: 'owner', text: 'Categoried by owner' }
             ],
             optionRow: 'customer',
             optionColumn: '',
@@ -144,7 +146,7 @@ export default {
             filterProject: [],
             filterTasktype: [],
             filterFeature: [],
-            fields:[],
+            heads:[],
             displayedData: [],
         };
     },
@@ -219,38 +221,38 @@ export default {
             // console.log(qryResult);
 
             // table header(field) prepare
-            this.fields = [];
+            this.heads = [];
             if(this.optionColumn === '') {
                 colTotalName = "Period Total";
                 for (let i=this.timeStart.getFullYear() ; i <= this.timeEnd.getFullYear() ; i++ ) {
                     if(i == this.timeStart.getFullYear()) {
                         for(let j=this.timeStart.getMonth() ; j<= 11 ; j++) {
-                            this.fields.push(i+"-"+(j+1));
+                            this.heads.push(i+"-"+(j+1));
                         }
                     }
                     else if (i == this.timeEnd.getFullYear()) {
                         for(let j=0 ; j<= this.timeEnd.getMonth() ; j++) {
-                            this.fields.push(i+"-"+(j+1));
+                            this.heads.push(i+"-"+(j+1));
                         }
                     }
                     else if (i < this.timeEnd.getFullYear()) {
                         for(let j=0 ; j<= 11 ; j++) {
-                            this.fields.push(i+"-"+(j+1));
+                            this.heads.push(i+"-"+(j+1));
                         }
                     }
-                    this.fields = [this.optionRow, ...this.fields, colTotalName];
+                    this.heads = [this.optionRow, ...this.heads, colTotalName];
                 }
             }
             else {
                 colTotalName = this.optionColumn + " Total";
-                this.fields = [ this.optionRow, 
+                this.heads = [ this.optionRow, 
                                 ...this.$props[this.optionColumn].map(e => e.name),
                                 colTotalName];
             }
 
             // prepare table content depending on options
-            // prepare array skeleton of row data by this.fields, init value 0
-            this.fields.forEach(function(e) {
+            // prepare array skeleton of row data by this.heads, init value 0
+            this.heads.forEach(function(e) {
                 tempArr.push([e, 0]);
             });
             // transfer array skeleton to object type
@@ -286,7 +288,7 @@ export default {
 
             // calculate total value
             this.$props[this.optionRow].forEach(function(a) {
-                that.fields.forEach(function(b) {
+                that.heads.forEach(function(b) {
                     if( b !== that.optionRow) {
                         if(b !== colTotalName) {
                             skeleton[a.name][colTotalName] += skeleton[a.name][b];
