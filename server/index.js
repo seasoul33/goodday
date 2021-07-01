@@ -26,7 +26,9 @@ async function start() {
 
   db.init('127.0.0.1:27017');
 
-  app.use(bodyParser.json()) ;
+  app.use(bodyParser.json({limit: '50mb'}));
+  app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+  app.use(express.json());
   app.use('/api', apiRouter)
 
   // Give nuxt middleware to express
