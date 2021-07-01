@@ -141,11 +141,12 @@ export function init(IPPort, callback) {
     });
 }
 
-export async function registerUser(user, passwd, groupNumber) {
-    const account = await searchUser(user);
+export async function registerUser(user) {
+    const account = await searchUser(user.name);
+    let result = true;
     if (account == null) {
-        await userCollect.insertMany({ name: user, password: passwd, group: groupNumber});
-        return 'ok';
+        await userCollect.insertMany(user);
+        return result;
     }
     return 'existed';
 }

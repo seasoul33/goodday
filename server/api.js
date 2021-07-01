@@ -359,7 +359,7 @@ router.put('/offdays', async (req, res) => {
 router.post('/register', async (req, res, next) => {
     const { name, password } = req.body;
     const group = (name === 'admin') ? db.priviledge.administrator:db.priviledge.normal;
-    const result = await db.registerUser(name, password, group);
+    const result = await db.registerUser({name, password, group});
     // TODO: Need more error handling
     if (result === 'existed') {
         res.send({ message: 'existed' });
@@ -377,21 +377,21 @@ router.put('/users', async (req, res) => {
     };
 
     if(req.body._id === '') {
-        result = await db.createUser(data);
+        result = await db.registerUser(data);
     }
     else {
         data._id = req.body._id;
         result = await db.updateUser(data);
     }
 
-    // const result = await db.updateUser({
-    //     name: req.body.name,
-    //     password: req.body.password,
-    //     group: req.body.group,
-    // });
-
     if (result !== true) {
+        if(result == 'existed') {
+            res.end();
+            // how to pass error code to frontend vue to display?
+        }
+        else {
         res.status(500).send({ error: 'create/update user Failed!' });
+    }
     }
     res.end();
 });
