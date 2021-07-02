@@ -29,6 +29,7 @@
     "mongoose": "^5.12.5",
     "net": "^1.0.2",
     "nuxt": "^2.15.4",
+    "pikaz-excel-js": "^0.2.16",
     "socket.io": "^2.4.1",
     "socket.io-client": "^2.4.0",
     "v-calendar": "^0.9.7",

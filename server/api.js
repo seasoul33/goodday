@@ -253,6 +253,19 @@ router.delete('/features', async (req, res) => {
     res.end();
 });
 
+// /records
+router.put('/records', async (req, res) => {
+    // console.log('PUT records : ' + JSON.stringify(req.body));
+
+    let result;
+    result = await db.createJob(req.body);
+
+    if (result !== true) {
+        res.status(500).send({ error: 'create/update job Failed!' });
+    }
+    res.end();
+});
+
 // /jobs
 // /jobs/search?
 router.put('/jobs', async (req, res) => {
@@ -261,11 +274,11 @@ router.put('/jobs', async (req, res) => {
     let projectName=req.body.project;
 
     if(req.body.offHour == 0) {
-    const projects = await db.findProject('');
-    const project = projects.find(function(element){
-        const name = element.otherNames.find(e => e === req.body.project);
-        return (name === undefined) ? false : true;
-    });
+        const projects = await db.findProject('');
+        const project = projects.find(function(element){
+            const name = element.otherNames.find(e => e === req.body.project);
+            return (name === undefined) ? false : true;
+        });
         projectName = (project === undefined)? projectName : project.name;
     }
 
@@ -395,8 +408,8 @@ router.put('/users', async (req, res) => {
             // how to pass error code to frontend vue to display?
         }
         else {
-        res.status(500).send({ error: 'create/update user Failed!' });
-    }
+            res.status(500).send({ error: 'create/update user Failed!' });
+        }
     }
     res.end();
 });

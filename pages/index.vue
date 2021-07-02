@@ -29,6 +29,15 @@
                     :tasktype="tasktypes"
                     :feature="features" />
             </b-tab>
+            <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Data Import">
+                <excelImport
+                    :currentUser="currentUser"
+                    :owner="users"
+                    :customer="customers"
+                    :project="projects"
+                    :tasktype="tasktypes"
+                    :feature="features" />
+            </b-tab>
             <b-tab v-if="currentUser.group === PRIVILEDGE_ADMIN" title="Manage">
                 <manage
                     :users="users"
@@ -82,9 +91,10 @@
 <script>
 import Vue from 'vue';
 import jobInput from '~/pages/jobInput.vue';
+import dataAnalyze from '~/pages/dataAnalyze.vue';
+import excelImport from '~/pages/excelImport.vue';
 import manage from '~/pages/manage.vue';
 import holidayManage from '~/pages/holidayManage.vue';
-import dataAnalyze from '~/pages/dataAnalyze.vue';
 import io from 'socket.io-client';
 import { ToggleButton } from 'vue-js-toggle-button';
 //import { BButton, BModal, BTabs } from 'bootstrap-vue';
@@ -105,9 +115,10 @@ socket.on('data_sync', function(msg){
 export default {
     components: {
         jobInput,
+        dataAnalyze,
+        excelImport,
         manage,
         holidayManage,
-        dataAnalyze,
         ToggleButton,
     },
         
