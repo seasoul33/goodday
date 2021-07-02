@@ -292,6 +292,7 @@ export default {
                         }
                     }
                     else {
+                        // console.log(e[that.optionRow]);
                         if(e.offHour == 0){
                             that.errorCount++;
                         }

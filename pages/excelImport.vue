@@ -52,8 +52,9 @@ export default {
 
     methods: {
         onSuccess (response, file) {
-            this.json = JSON.stringify(response)
+            // console.log(response);
             this.srcDataArr = lang.cloneDeep(response[0].data);
+            this.json = 'Import done';
         },
 
         clearData () {
@@ -89,6 +90,8 @@ export default {
             });
 
             await this.$axios.put('api/records',this.injectDataArr);
+
+            this.json = 'Inject done';
         },
     }
 }
