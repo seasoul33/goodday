@@ -7,11 +7,11 @@
         </div>
         <div>
             Row Indicator*
-            <b-form-select v-model="optionRow" :options="optionArr"></b-form-select>
+            <b-form-select v-model="optionRow" :options="optionArrUpdated"></b-form-select>
         </div>
         <div>
             Column Indicator
-            <b-form-select v-model="optionColumn" :options="[...optionEmpty, ...optionArr]"></b-form-select>
+            <b-form-select v-model="optionColumn" :options="[...optionEmpty, ...optionArrUpdated]"></b-form-select>
         </div>
         <br>
         <div>
@@ -96,6 +96,7 @@
             Table Render
             <br>
             <b-button v-on:click="displayData" pill variant="outline-primary">Collect</b-button>
+            <label v-if="errorCount!=0" class="errorLabel">Found {{errorCount}} error(s)!</label>
             <b-table 
                 table-variant="primary"
                 head-variant="dark"
@@ -111,12 +112,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import autoSuggest from '~/components/autoSuggest.vue';
+import lang from 'lodash/lang';
 
 export default {
     components: {
-        autoSuggest,
     },
         
     props: {
@@ -132,7 +131,7 @@ export default {
         return {
             optionEmpty: [{ value: '', text: 'None(categoried by Time Range)' }],
             optionArr: [
-                { value: 'customer', text: 'Categoried by customer', disabled: true },
+                { value: 'customer', text: 'Categoried by customer' },
                 { value: 'project', text: 'Categoried by project' },
                 { value: 'tasktype', text: 'Categoried by tasktype' },
                 { value: 'feature', text: 'Categoried by feature' },
@@ -148,21 +147,29 @@ export default {
             filterFeature: [],
             heads:[],
             displayedData: [],
+            errorCount: 0,
         };
     },
 
-    watch: {
-        optionRow: {
-            deep: true,
-            handler(newVal, oldVal) {
-                if(newVal !== '') {
-                    this.optionArr.find(element => element.value == newVal).disabled = true;
+    computed: {
+        optionArrUpdated: function() {
+            let result=[];
+            let that = this;
+            this.optionArr.forEach(function(e) {
+                let tempObj = Object.assign({},e);
+                if(e.value == that.optionRow || e.value == that.optionColumn) {
+                    tempObj.disabled = true;
                 }
-                if(oldVal !== '') {
-                    this.optionArr.find(element => element.value === oldVal).disabled = false;
+                else {
+                    tempObj.disabled = false;
                 }
-            },
+                result.push(tempObj);
+            });
+            return lang.cloneDeep(result);
         },
+    },
+
+    watch: {
     },
 
     methods: {
@@ -177,6 +184,8 @@ export default {
             let that = this;
             let colTotalName = "";
             let rowTotalName = this.optionRow + " Total";
+
+            this.errorCount = 0;
 
             // prepare query string(<1024 length) depending on filters
             if(this.filterCustomer.length > 0) {
@@ -240,8 +249,8 @@ export default {
                             this.heads.push(i+"-"+(j+1));
                         }
                     }
-                    this.heads = [this.optionRow, ...this.heads, colTotalName];
                 }
+                this.heads = [this.optionRow, ...this.heads, colTotalName];
             }
             else {
                 colTotalName = this.optionColumn + " Total";
@@ -275,13 +284,25 @@ export default {
             // O(1) time to parse query result to fill the statistic value into skeleton
             if(this.optionColumn === '') {
                 qryResult.forEach(function(e) {
-                    let dateIndex = (new Date(e.date).getFullYear()) + "-" + (new Date(e.date).getMonth());
-                    skeleton[e[that.optionRow]][dateIndex] += e.effort;
+                    if(skeleton[e[that.optionRow]] != undefined) {
+                        let day = new Date(e.date);
+                        if(day >= that.timeStart && day<= that.timeEnd) {
+                            let dateIndex = (new Date(e.date).getFullYear()) + "-" + (new Date(e.date).getMonth() + 1);
+                            skeleton[e[that.optionRow]][dateIndex] += e.effort;
+                        }
+                    }
+                    else {
+                        if(e.offHour == 0){
+                            that.errorCount++;
+                        }
+                    }
                 });
-            }
+            }   
             else {
                 qryResult.forEach(function(e) {
-                    skeleton[e[that.optionRow]][e[that.optionColumn]] += e.effort;
+                     if(e.offHour == 0) {
+                        skeleton[e[that.optionRow]][e[that.optionColumn]] += e.effort;
+                     }
                 });
             }
             // console.log(skeleton);
@@ -312,5 +333,8 @@ export default {
 
 <style>
 
+.errorLabel {
+    color: red;
+}
 
 </style>
