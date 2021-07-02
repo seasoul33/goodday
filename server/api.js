@@ -258,12 +258,16 @@ router.delete('/features', async (req, res) => {
 router.put('/jobs', async (req, res) => {
     // console.log('PUT job : ' + req.body.content);
 
+    let projectName=req.body.project;
+
+    if(req.body.offHour == 0) {
     const projects = await db.findProject('');
     const project = projects.find(function(element){
         const name = element.otherNames.find(e => e === req.body.project);
         return (name === undefined) ? false : true;
     });
-    const projectName = (project === undefined)? req.body.project : project.name;
+        projectName = (project === undefined)? projectName : project.name;
+    }
 
     let result;
     let data = {
@@ -272,6 +276,7 @@ router.put('/jobs', async (req, res) => {
         tasktype: req.body.tasktype,
         feature: req.body.feature,
         effort: req.body.effort,
+        offHour: req.body.offHour,
         content: req.body.content,
         owner: req.body.owner,
         date: req.body.date,

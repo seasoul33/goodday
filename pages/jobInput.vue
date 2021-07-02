@@ -20,6 +20,7 @@
                     :sourceData="customerNamelist"
                     v-model="customerName"
                     holder="customer name..."
+                    :inputDisabled="inputDisabled"
                 />
             </span>
 
@@ -30,6 +31,7 @@
                     :sourceData="projectNameList"
                     v-model="projectName"
                     holder="project name..."
+                    :inputDisabled="inputDisabled"
                 />
             </span>
 
@@ -40,6 +42,7 @@
                     :sourceData="taskTypeList"
                     v-model="tasktypeName"
                     holder="task type..."
+                    :inputDisabled="inputDisabled"
                 />
             </span>
 
@@ -50,13 +53,14 @@
                     :sourceData="featureNameList"
                     v-model="featureName"
                     holder="function name..."
+                    :inputDisabled="inputDisabled"
                 />
             </span>
 
             <span>
                 Effort in hour:
                 <br />
-                <input type="number" v-model="workHour" class="container-effort">
+                <input type="number" v-model="workHour" :disabled="inputDisabled" class="container-effort">
                 <br />
             </span>
 
@@ -68,7 +72,13 @@
                 </textarea>
             </span>
 
-            <div class="container-button">
+            <span>
+                off hour:
+                <br />
+                <input type="number" v-model="offHour" class="container-effort">
+            </span>
+
+            <span class="container-button">
                 <b-button
                     class="new-button"
                     size="sm"
@@ -88,7 +98,7 @@
                     variant="primary"
                     @click="clearJob">Clear
                 </b-button>
-            </div>
+            </span>
         </div>
 
         <div>
@@ -119,7 +129,6 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import autoSuggest from '~/components/autoSuggest.vue';
 import { setupCalendar, DatePicker} from 'v-calendar';
 import 'v-calendar/lib/v-calendar.min.css';
@@ -179,6 +188,7 @@ export default {
             tasktypeName: '',
             featureName: '',
             workHour: 0,
+            offHour: 0,
             jobDescription: '',
             jobId: '',
             selectedSingleDate: new Date(new Date().getFullYear(), new Date().getMonth(),new Date().getDate()),
@@ -188,6 +198,7 @@ export default {
                 'tasktype',
                 'feature',
                 'effort',
+                'offHour',
                 'content',
                 { key: 'action', label: ''}
             ],
@@ -241,7 +252,7 @@ export default {
         },
 
         selectedDateEPOCH: function() {
-            // console.log(this.selectedSingleDate.toLocaleDateString());
+            // console.log(this.selectedSingleDate);
             // console.log(this.selectedSingleDate.getTime());
             // return this.selectedSingleDate.toLocaleDateString();
             return this.selectedSingleDate.getTime();
@@ -255,6 +266,10 @@ export default {
                 delete element.owner;
                 return element;
             });
+        },
+
+        inputDisabled: function() {
+            return (this.offHour != 0)? true:false;
         },
     },
 
@@ -274,6 +289,7 @@ export default {
             this.tasktypeName = '';
             this.featureName = '';
             this.workHour = 0;
+            this.offHour = 0;
             this.jobDescription = '';
             this.jobId = '';
             this.editButtonDisabled = true;
@@ -297,17 +313,35 @@ export default {
                 id = this.jobId;
             }
 
-            await this.$axios.put('api/jobs',{
-                _id: id,
-                customer: this.customerName,
-                project: this.projectName,
-                tasktype: this.tasktypeName,
-                feature: this.featureName,
-                effort: this.workHour,
-                content: this.jobDescription,
-                owner: this.currentUser.name,
-                date: this.selectedDateEPOCH,
-            });
+            if(this.offHour == 0) {
+                await this.$axios.put('api/jobs',{
+                    _id: id,
+                    customer: this.customerName,
+                    project: this.projectName,
+                    tasktype: this.tasktypeName,
+                    feature: this.featureName,
+                    effort: this.workHour,
+                    offHour: this.offHour,
+                    content: this.jobDescription,
+                    owner: this.currentUser.name,
+                    date: this.selectedDateEPOCH,
+                });
+            }
+            else {
+                let content = (this.jobDescription == "")? "請假" : this.jobDescription;
+                await this.$axios.put('api/jobs',{
+                    _id: id,
+                    customer: "",
+                    project: "",
+                    tasktype: "",
+                    feature: "",
+                    effort: 0,
+                    offHour: this.offHour,
+                    content: content,
+                    owner: this.currentUser.name,
+                    date: this.selectedDateEPOCH,
+                });
+            }
 
             // await this.$axios.put('api/userhistory',{
             //     name: this.currentUser.name,
@@ -320,6 +354,7 @@ export default {
             // });
 
             this.jobId= '';
+            this.offHour= 0;
             this.editButtonDisabled = true;
 
             this.updateJobs();
@@ -340,6 +375,7 @@ export default {
             this.tasktypeName = item.tasktype;
             this.featureName = item.feature;
             this.workHour = item.effort;
+            this.offHour = item.offHour;
             this.jobDescription = item.content;
             this.jobId = this.jobs[index]._id;
             // console.log('id:'+this.jobId);

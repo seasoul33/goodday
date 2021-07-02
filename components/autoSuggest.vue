@@ -11,6 +11,7 @@
                 v-model="content"
                 :placeholder="holder"
                 :maxlength="inputLength"
+                :disabled="inputDisabled"
                 @focus="onFocused"
                 @blur="onBlur"
                 @keydown.up.prevent="onKeyUp"
@@ -56,6 +57,10 @@ export default {
         },
         holder: String,
         forcedSuggest: {
+            type: Boolean,
+            default: false,
+        },
+        inputDisabled: {
             type: Boolean,
             default: false,
         },

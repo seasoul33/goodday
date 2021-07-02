@@ -69,9 +69,9 @@ const jobSchema = {
     tasktype: String,
     feature: String, //{ ObjectId, String },
     effort: Number,
+    offHour: Number,
     content: String,
     owner: String, //{ ObjectId, String }, // username _id + username
-    // date: Date,
     date: Number,
 }
 
