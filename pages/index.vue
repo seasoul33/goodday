@@ -1,10 +1,19 @@
 <template>
     <section class="container">
         <header>
+            <span class="title">Goodday Timecard System</span>
             <span class="logingroup">
-                <b-button @click="$bvModal.show('login-modal')" variant="outline-success">Sign-in/Sign-up</b-button>
-                <b-button @click="logout" variant="outline-success">Logout</b-button>
-                <b-button @click="check" variant="outline-success">Check</b-button>
+                Goodday~ {{currentUser.name}}~!
+                <b-button v-if="currentUser.name==visitorName" 
+                    @click="$bvModal.show('login-modal')"
+                    variant="outline-success">
+                    Sign-in/Sign-up
+                </b-button>
+                <b-button v-else
+                    @click="logout"
+                    variant="outline-success">
+                    Logout
+                </b-button>
             </span>
         </header>
 
@@ -97,12 +106,10 @@ import manage from '~/pages/manage.vue';
 import holidayManage from '~/pages/holidayManage.vue';
 import io from 'socket.io-client';
 import { ToggleButton } from 'vue-js-toggle-button';
-//import { BButton, BModal, BTabs } from 'bootstrap-vue';
-//import moment from 'moment';
-//import lang from 'lodash/lang';
 const socket = io('http://127.0.0.1:3001');
 //const socket = io('http://hityang.noip.me:3001');
-const priviledge = {'normal': 1,
+const priviledge = {'visitor': 0,
+                    'normal': 1,
                     'administrator': 2, 
 };
 
@@ -231,6 +238,8 @@ export default {
                             {weekdays: [1,7]},
                         ],
                     },
+            PRIVILEDGE_VISIT: priviledge.visitor,
+            visitorName: 'Stranger',
             PRIVILEDGE_NORMAL: priviledge.normal,
             PRIVILEDGE_ADMIN: priviledge.administrator,
         };
@@ -278,7 +287,7 @@ export default {
                         };
             }
             else {
-                return {name:"Anonymous", group: this.PRIVILEDGE_NORMAL};
+                return {name:this.visitorName, group: this.PRIVILEDGE_VISIT};
             }
         },
     },
@@ -324,8 +333,6 @@ export default {
 
         async logout() {
             await this.$auth.logout();
-            this.currentUser.name = 'Anonymous';
-            this.currentUser.group = this.PRIVILEDGE_NORMAL;
         },
 
         async getUsers() {
@@ -375,7 +382,6 @@ export default {
 
 <style>
 body {
-    /*font-family: sans-serif;*/
     font-family: 'Microsoft JhengHei','Heiti TC','WenQuanYi Zen Hei', Helvetica;
     background-color: #315481;
     background-image: linear-gradient(to bottom, #315481, #918e82 100%);
@@ -404,8 +410,9 @@ header {
     /*font-size: 1.5em;*/
 }
 
-header.title {
-    font-size: 2em;
+.title {
+    font-size: 2.2em;
+    font-family: 'Verdana Pro Black';
 }
 
 .container {
