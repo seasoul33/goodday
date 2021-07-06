@@ -16,7 +16,8 @@
         <br>
         <div>
             <b-button v-b-toggle.collapse-1 variant="outline-info">Filter by customer</b-button>
-            <b-collapse visible id="collapse-1" class="mt-2">
+            <!-- <b-collapse visible id="collapse-1" class="mt-2"> -->
+            <b-collapse id="collapse-1" class="mt-2">
                 <b-form-group label="Select customer:" v-slot="{ ariaDescribedby }">
                     <b-form-checkbox-group
                         id="checkbox-group-1"

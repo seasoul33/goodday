@@ -58,7 +58,7 @@ export default {
         holder: String,
         forcedSuggest: {
             type: Boolean,
-            default: false,
+            default: true,
         },
         inputDisabled: {
             type: Boolean,
@@ -68,7 +68,7 @@ export default {
 
     data: function() {
         return {
-            content: this.value,
+            content: '',
             isDisplayed: false,
             isSuspended: false,
             results: this.prepareSuggestion(''),
@@ -87,8 +87,23 @@ export default {
 
     watch: {
         content(newVal) {
-            this.$emit('input', newVal);
-            this.results = this.prepareSuggestion(newVal);
+            this.update(newVal);
+        },
+
+        value(newVal) {
+            this.isSuspended = true;
+            this.content = newVal;
+        },
+    },
+
+    // updated: function() {
+    //     console.log('pass updated');
+    // },
+
+    methods: {
+        update(keyword) {
+            this.$emit('input', keyword);
+            this.results = this.prepareSuggestion(keyword);
 
             if(this.isSuspended === true) {
                 this.isSuspended = false;
@@ -100,20 +115,6 @@ export default {
                 this.cursorPosition = this.autoSelect? 0 : cursorDefaultPosition;
             }
         },
-        value(newVal){
-            if(this.content === newVal) {
-                return;
-            }
-            this.isSuspended = true;
-            this.content = newVal;
-        },
-    },
-
-    // updated: function() {
-    //     console.log('pass updated');
-    // },
-
-    methods: {
         prepareSuggestion: function(keyword) {
             if(keyword.length < 1) {
                 return this.forcedSuggest? this.sourceData : []
@@ -142,17 +143,14 @@ export default {
         },
 
         onFocused: function() {
-            this.toogleDisplay( (this.forcedSuggest && (this.content === ''))? true : false);
+            // this.toogleDisplay( (this.forcedSuggest && (this.content === '') && (this.results.length > 0))? true : false);
+            if(this.forcedSuggest) {
+                this.update(this.content);
+            }
         },
 
         onBlur: function() {
             this.toogleDisplay(false);
-            // let that = this;
-            // console.log('pass 1 + '+ this.content);
-            // this.$nextTick(() => {
-            //     console.log('pass 2 + '+ this.content);
-            //     that.toogleDisplay(false);
-            // });
         },
 
         onKeyUp: function() {
@@ -162,8 +160,13 @@ export default {
         },
 
         onKeyDown: function() {
-            if (this.cursorPosition < (this.results.length - 1)) {
-                this.cursorPosition++;
+            if(this.isDisplayed) {
+                if (this.cursorPosition < (this.results.length - 1)) {
+                    this.cursorPosition++;
+                }
+            }
+            else {
+                this.update(this.content);
             }
         },
 

@@ -57,7 +57,7 @@
                 />
             </span>
 
-            <span>
+            <span class="container-input">
                 Effort in hour:
                 <br />
                 <input type="number" v-model="workHour" :disabled="inputDisabled" class="container-effort">
@@ -72,7 +72,7 @@
                 </textarea>
             </span>
 
-            <span>
+            <span class="container-input">
                 off hour:
                 <br />
                 <input type="number" v-model="offHour" class="container-effort">
@@ -148,7 +148,7 @@ export default {
     },
         
     mounted: async function() {
-        this.setFocus("first");
+        // this.setFocus("first");
         this.updateJobs();
     },
 
@@ -294,14 +294,14 @@ export default {
             this.jobId = '';
             this.editButtonDisabled = true;
             
-            this.setFocus("first");
+            // this.setFocus("first");
         },
 
         async updateJobs(){
             let result = await this.getJobs();
             // console.log('result: '+result);
             this.jobs = result.slice();
-            this.setFocus("first");
+            // this.setFocus("first");
         },
 
         async addJobs(type) {
@@ -381,7 +381,7 @@ export default {
             // console.log('id:'+this.jobId);
 
             this.editButtonDisabled = false;
-            this.setFocus("first");
+            // this.setFocus("first");
         },
 
         async deleteJob(index) {
@@ -444,7 +444,9 @@ body {
 }
 
 .container-button {
-    padding-top: 8%;
+    float: left;
+    padding-top: 2%;
+    padding-left: 3%;
 }
 
 .container-effort {
