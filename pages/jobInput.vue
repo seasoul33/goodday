@@ -104,6 +104,7 @@
         </div>
 
         <div>
+            <!-- Used time today: <label :style="[(todayTotalHours<8)?{color:'red'}:{color:'green'}]">{{todayTotalHours}}</label> -->
             <b-table 
                 table-variant="primary"
                 head-variant="dark"
@@ -111,7 +112,7 @@
                 hover
                 small
                 fixed
-                :fields="fields"
+                :fields="dynamicFields"
                 :items="displayedJobs"
                 @row-clicked="selectJob" >
                 <template v-slot:cell(action)="data">
@@ -122,9 +123,6 @@
                         @click="deleteJob(data.index)">Del
                     </b-button>
                 </template>
-                <!-- <template v-slot:cell()="data">
-                    <i>{{ data.value }}</i>
-                </template> -->
             </b-table>
         </div>
     </div>
@@ -202,7 +200,6 @@ export default {
                 'effort',
                 'offHour',
                 'content',
-                { key: 'action', label: ''}
             ],
             offdayAttr: this.offday,
         };
@@ -268,6 +265,27 @@ export default {
                 delete element.owner;
                 return element;
             });
+        },
+
+        todayTotalHours: function() {
+            if(this.jobs.length == 0) {
+                return 0;
+            }
+            return this.jobs.reduce(function(totalHour, element) {
+                return totalHour + element.effort + element.offHour;
+            }, 0);
+        },
+
+        dynamicFields: function() {
+            if(this.todayTotalHours == undefined || this.todayTotalHours == 0) {
+                return [...this.fields,{ key: "action", label: ""}];
+            }
+            else {
+                let str="Used Time: " + this.todayTotalHours.toString();
+                // let color="bg-white " + ((this.todayTotalHours<8)?"text-danger":"text-success");
+                let color=(this.todayTotalHours<8)?"text-danger":"text-success";
+                return [...this.fields,{ key: "action", thClass: color, label: str}];
+            }
         },
 
         inputDisabled: function() {
