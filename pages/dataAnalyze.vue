@@ -184,7 +184,7 @@ export default {
             let tempArr = [];
             let that = this;
             let colTotalName = "";
-            let rowTotalName = this.optionRow + " Total";
+            let rowTotalName = this.optionColumn + " Total";
 
             this.errorCount = 0;
 
@@ -232,8 +232,9 @@ export default {
 
             // table header(field) prepare
             this.heads = [];
+            colTotalName = this.optionRow + " Total";
             if(this.optionColumn === '') {
-                colTotalName = "Period Total";
+                rowTotalName = "Period Total";
                 for (let i=this.timeStart.getFullYear() ; i <= this.timeEnd.getFullYear() ; i++ ) {
                     if(i == this.timeStart.getFullYear()) {
                         for(let j=this.timeStart.getMonth() ; j<= 11 ; j++) {
@@ -254,7 +255,6 @@ export default {
                 this.heads = [this.optionRow, ...this.heads, colTotalName];
             }
             else {
-                colTotalName = this.optionColumn + " Total";
                 this.heads = [ this.optionRow, 
                                 ...this.$props[this.optionColumn].map(e => e.name),
                                 colTotalName];
