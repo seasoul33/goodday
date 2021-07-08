@@ -32,7 +32,7 @@
             <b-tab title="Data Analyze">
                 <dataAnalyze
                     :currentUser="currentUser"
-                    :owner="users"
+                    :owner="normalUsers"
                     :customer="customers"
                     :project="projects"
                     :tasktype="tasktypes"
@@ -289,6 +289,16 @@ export default {
             else {
                 return {name:this.visitorName, group: this.PRIVILEDGE_VISIT};
             }
+        },
+
+        normalUsers: function() {
+            let tempArr=[];
+            this.users.map(function(e){
+                if(e.name != 'admin') {
+                    tempArr.push(e);
+                }
+            });
+            return tempArr;
         },
     },
 
