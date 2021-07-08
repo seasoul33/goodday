@@ -85,6 +85,7 @@
                     class="new-button"
                     size="sm"
                     variant="primary"
+                    :disabled="currentUser.name=='Stranger'"
                     @click="addJobs('add')">Add
                 </b-button>
                 <b-button
@@ -281,8 +282,7 @@ export default {
                 return [...this.fields,{ key: "action", label: ""}];
             }
             else {
-                let str="Used Time: " + this.todayTotalHours.toString();
-                // let color="bg-white " + ((this.todayTotalHours<8)?"text-danger":"text-success");
+                let str="Used Time: " + this.todayTotalHours;
                 let color=(this.todayTotalHours<8)?"text-danger":"text-success";
                 return [...this.fields,{ key: "action", thClass: color, label: str}];
             }
