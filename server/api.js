@@ -3,6 +3,9 @@ const router = express.Router();
 const db = require('./dbInterface.js')
 const jwt = require('express-jwt')
 const jsonwebtoken = require('jsonwebtoken')
+const priviledge= { 'visitor': 0,
+                    'normal': 1,
+                    'administrator': 2,};
 
 // /customers
 // /customers?fields=xxx,yyy,zzz
@@ -376,7 +379,7 @@ router.put('/offdays', async (req, res) => {
 
 router.post('/register', async (req, res, next) => {
     const { name, password } = req.body;
-    const group = (name === 'admin') ? db.priviledge.administrator:db.priviledge.normal;
+    const group = (name === 'admin') ? priviledge.administrator:priviledge.normal;
     const result = await db.registerUser({name, password, group});
     // TODO: Need more error handling
     if (result === 'existed') {

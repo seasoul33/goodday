@@ -11,9 +11,7 @@ let featureCollect = null;
 let jobCollect = null;
 let offdayCollect = null;
 // let ObjectId = mongoose.Schema.Types.ObjectId;
-export const priviledge = {'normal': 1,
-                           'administrator': 2, 
-};
+
 
 const userSchema = {
     name: String,
