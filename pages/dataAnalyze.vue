@@ -97,6 +97,11 @@
             Table Render
             <br>
             <b-button v-on:click="displayData" pill variant="outline-primary">Collect</b-button>
+            <b-button v-on:click="prepareExport" pill variant="outline-primary">
+                <excel-export ref="exportRef" manual :sheet="sheetData">
+                    <div>Export</div>
+                </excel-export>
+            </b-button>
             <label v-if="errorCount!=0" class="errorLabel">Found {{errorCount}} error(s)!</label>
             <b-table 
                 table-variant="primary"
@@ -113,10 +118,12 @@
 </template>
 
 <script>
+import {ExcelExport} from 'pikaz-excel-js'
 import lang from 'lodash/lang';
 
 export default {
     components: {
+        ExcelExport,
     },
         
     props: {
@@ -149,6 +156,7 @@ export default {
             heads:[],
             displayedData: [],
             errorCount: 0,
+            sheetData: [],
         };
     },
 
@@ -328,6 +336,33 @@ export default {
             });
             this.displayedData.push(skeleton[rowTotalName]);
             // console.log(this.displayedData);
+
+        },
+
+        prepareExport () {
+            // this.sheetData=[
+            //   {
+            //     tHeader:["litchi","lemon"],
+            //     table:[{litchi:"甜",lemon:"酸"}],
+            //     keys:["litchi","lemon"],
+            //   }
+            // ];
+            let tHeader = lang.cloneDeep(this.heads);
+            let keys = lang.cloneDeep(this.heads);
+            let table = [];
+            let that=this;
+
+            this.displayedData.forEach(function(eRow){
+                let tempArr=[];
+                that.heads.forEach(function(e){
+                    tempArr.push([e, eRow[e]]);
+                });
+                table.push(Object.fromEntries(tempArr));
+            });
+
+            this.sheetData = [{tHeader, table, keys}];
+
+            this.$refs["exportRef"].pikaExportExcel();
         },
     }
 }
