@@ -61,7 +61,7 @@
                 Effort in hour:
                 <br />
                 <input type="number" v-model="workHour" :disabled="inputDisabled" class="container-effort"
-                       min="0" max="12" step="0.1" oninput="if(value.split('.')[1].length > 1) value=value.slice(0, (value.split('.')[0].length + 2))">
+                       min="0" max="24" step="0.5" oninput="value=value.indexOf('.') > -1?value.slice(0, value.indexOf('.') + 2):value.slice(0,2)">
                 <br />
             </span>
 
@@ -77,7 +77,7 @@
                 off hour:
                 <br />
                 <input type="number" v-model="offHour" class="container-effort"
-                       min="0" max="8" step="0.1" oninput="if(value.split('.')[1].length > 1) value=value.slice(0, (value.split('.')[0].length + 2))">
+                       min="0" max="24" step="0.5" oninput="value=value.indexOf('.') > -1?value.slice(0, value.indexOf('.') + 2):value.slice(0,2)">
             </span>
 
             <span class="container-button">
